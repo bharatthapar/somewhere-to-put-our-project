@@ -35,7 +35,7 @@ struct PacketInfo {
 	struct Packet * packet;
 };
 
-//Struct to store the latest known sequence numbers for hosts
+//Struct to store the latest known sequence numbers for hostss
 struct Sequence {
 	//The host address for whom this sequence number is associated
 	char address[4];
