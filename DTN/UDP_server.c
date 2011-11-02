@@ -8,12 +8,39 @@
 #include<string.h>
 #include<fcntl.h>
 #include<pthread.h>
+#include<netdb.h>
+#include<unistd.h>
+#include<signal.h>
+#include<sys/time.h>
+#include"packet.h"
 
+#define INTERVAL 5000		/* number of milliseconds to go off */
+void send_beacon();
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
+void send_all(char *ip){}
+void data_handler();
+void ack_handler();
+void add_node(struct Apacket *packet){}
+void remove_nodes(struct Apacket *packet){}
+int update_seq_num(struct Apacket *packet){}
+
+
+
 
 int initialize() {
+		struct in_addr a;
+		char host[100];
+		gethostname(host,sizeof(host));	
+		printf("Host is %s\n\n",host);	
+		struct hostent *name=gethostbyname(host);
+		printf("IP is %s\n",inet_ntoa(*(struct in_addr *)*name->h_addr_list));
+		while (*name->h_addr_list)
+        	{
+            		bcopy(*name->h_addr_list++, (char *) &a, sizeof(a));
+		        printf("address: %s\n", inet_ntoa(a));
+        	}
 		MainSocket = socket(AF_INET,SOCK_DGRAM,0);
 		if(MainSocket == -1) {
 			perror("Socket");
@@ -34,6 +61,8 @@ int initialize() {
 }
 
 void *waitForPacket() {
+		struct Apacket *packet1;
+		packet1 = malloc(sizeof(packet));
 		int listen_sock;
 		int bytes_read;		
 		char recv_data[1024];
@@ -48,52 +77,90 @@ void *waitForPacket() {
 		printf("\nUDPServer Waiting for client on port 8000");
 	        fflush(stdout);
 		while(1) {
-			bytes_read = recvfrom(listen_sock,recv_data,1024,0,(struct sockaddr *)&client_addr, &addr_len);
-	  
-		  	recv_data[bytes_read] = '\0';
+			printf("Im here as well\n");		
+			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
+	  		printf("here too\n");
+		  	//recv_data[bytes_read] = '\0';
 
 	          	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-	          	printf("%s", recv_data);
+	          	printf("\n%s\n", packet1->data);
+
+			if(packet1->type == TYPE_BEACON) {
+				send_all(packet1->source);
+			}
+			else if(packet1->type == TYPE_DATA) {
+				data_handler();
+			}
+			else if(packet1->type == TYPE_ACK) {
+				ack_handler();
+			}
 		  	fflush(stdout);
 		}
 }
 
-void *sendPackets() {
+void sendPackets(struct Apacket *packet, char *ip) {
 		int send_sock;
-		char ip[]={10,10,10,255};
-		char data[1024];
 		send_sock = MainSocket;
-		server_addr.sin_addr.s_addr = inet_addr("10.10.10.255");
+		server_addr.sin_addr.s_addr = inet_addr(ip);
 		server_addr.sin_port = htons(8000);
 		printf("Sending to %s on port %d\n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
-		while(1) {
-		
-		gets(data);
-		if ((strcmp(data , "q") == 0) || strcmp(data , "Q") == 0)
-       			break;
-
-    		else
-       			sendto(send_sock, data, strlen(data), 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
-
-     		}
+		sendto(send_sock, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+		printf("bhej diya\n");
 }
 
 int main(int argc, char *argv[])
 {
-	/*if(atoi(argv[1]) == 0)
-	{
-		printf("Server mode\n");
-		waitForPacket();
-	}
-	else
-	{
-		printf("Client mode\n");
-		sendPackets();
-	}*/
-	initialize();
+	struct itimerval it_val;	/* for setting itimer */
+    	initialize();
 	pthread_t sender,receiver;
-	pthread_create(&sender,NULL,sendPackets,NULL);
+	//pthread_create(&sender,NULL,sendPackets,NULL);
 	pthread_create(&receiver,NULL,waitForPacket,NULL);
-	while(1);
+	if (signal(SIGALRM, (void (*)(int)) send_beacon) == SIG_ERR) {
+    			perror("Unable to catch SIGALRM");
+    			exit(1);
+  	}
+  	it_val.it_value.tv_sec =     INTERVAL/1000;
+  	it_val.it_value.tv_usec =    (INTERVAL*1000) % 1000000;	
+  	it_val.it_interval = it_val.it_value;
+  	if (setitimer(ITIMER_REAL, &it_val, NULL) == -1) {
+  		  perror("error calling setitimer()");
+  		  exit(1);
+  	}
+
+ 	while (1) 
+   		pause();
 	return 0;
 }
+
+void send_beacon() {
+	printf("Im in\n");
+	struct Apacket packet;
+	packet.type = 1;
+	packet.seq_num = 0;
+	packet .ttl = 2;
+	sprintf(packet.data,"Beacon\n");
+	printf("%s\n",packet.data);
+	packet.length = sizeof(packet);
+	sendPackets(&packet,"255.255.255.255");
+}
+
+void data_handler(struct Apacket *packet) {
+	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
+
+	if(update_seq_num(packet)) {
+		add_node(packet);
+	}
+	return ;
+}
+
+void ack_handler(struct Apacket *packet) {
+	/*	Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return */
+
+	if(update_seq_num(packet)) {
+		add_node(packet);
+		remove_nodes(packet);
+	}
+	return ;
+}
+
+
