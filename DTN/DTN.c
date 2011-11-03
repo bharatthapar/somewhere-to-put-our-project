@@ -1,29 +1,5 @@
 //May end up breaking this up into many files
-
-
-//A packet
-struct Packet {
-	//The version
-	int version;
-	//The type of packet, Normal or ACK
-	int type;
-	//The size of the packet INCLUDING the header
-	int size;
-	//The address that originated the packet
-	char source[4];
-	//The final destination for the packet
-	char destination[4];
-	//The most recent node that the packet visited
-	char previous[4];
-	//The number of hops this packet has taken
-	int hops;
-	//The maximum number of hops the packet is allowed to take
-	int maxHops;
-	//The sequence number of this packet
-	long seqNum;
-	//The payload
-	char data[1500];
-};
+#include "packet.h"
 
 //Struct to store a packet along with other necessary info
 struct PacketInfo {
