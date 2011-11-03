@@ -91,7 +91,7 @@ sequence * newSeqNumber(packet * p) {
 		memcpy(out->dest, p->source, 4);
 		memcpy(out->source, p->dest, 4);
 		
-		out->seqNum = p->seq_num; 	
+		out->seqNum = p->seq_num - 1; 	
 	}
 	out->timeout = 0;
 	out->next = NULL;
