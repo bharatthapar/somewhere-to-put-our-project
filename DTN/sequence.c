@@ -1,11 +1,43 @@
+/**
+ * Manages all sequence number related functions
+ */
+ 
 #include "packet.h"
 #include "sequence.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
+typedef struct localNum {
+	//The destination
+	char dest[4];
+	//The current sequence number for the destination
+	uint32_t num;
+	//For linked list
+	struct localNum * next;
+} destSeq;
+
+typedef struct seqHolder {
+	//Source and destination (based on data packet)
+	char source[4];
+	char dest[4];
+	//The most recent sequence number seen (in an ACK)
+	uint32_t seqNum;
+	//When this sequence number is no longer valid
+	uint32_t timeout;
+	//For linked list
+	struct seqHolder * next;
+} sequence;
+
+//Head of the linked list for others' sequence numbers
 sequence * first;
+//Tail of the linked list for others' sequence numbers
 sequence * last;
+//Head of the linked list for local sequence numbers
+destSeq * localFirst;
+//Tail of the linked list for local sequence numbers
+destSeq * localLast;
 
 void * allocate(size_t size) {
 	void * out = malloc(size);
@@ -16,22 +48,50 @@ void * allocate(size_t size) {
 	return out;
 }
 
+destSeq * newDestSeq(packet * p) {
+	destSeq * out = allocate(sizeof(destSeq));
+	memcpy(out->dest, p->dest, 4);
+	out->num = 0;
+	out->next = NULL;
+	return out;
+}
+
+destSeq * getLocalSeqNumber(packet * p) {
+	//Nothing in list, must create new
+	if (localFirst == NULL) {
+		localFirst = newDestSeq(p);
+		localLast = localFirst;
+		localFirst->num++;
+		return localFirst;
+	} else {
+		destSeq * temp;
+		for(temp = localFirst; temp != NULL; temp = temp->next) {
+			if(memcmp(temp->dest, p->dest, 4) == 0) {
+				temp->num++;
+				return temp;
+			}
+		}
+		temp = newDestSeq(p);
+		localLast->next = temp;
+		localLast = temp;
+		temp->num++;
+		return temp;
+	}
+
+}
+
 sequence * newSeqNumber(packet * p) {
 	sequence * out = allocate(sizeof(sequence));
 	if (p->type == TYPE_DATA) {
-		out->address[0] = p->source[0];
-		out->address[1] = p->source[1];
-		out->address[2] = p->source[2];
-		out->address[3] = p->source[3];
-		
-		out->dataSeqNum = p->seq_num - 1; 
+		memcpy(out->source, p->source, 4);
+		memcpy(out->dest, p->dest, 4);
+
+		out->seqNum = 0;
 	} else if (p->type == TYPE_ACK) {
-		out->address[0] = p->dest[0];
-		out->address[1] = p->dest[1];
-		out->address[2] = p->dest[2];
-		out->address[3] = p->dest[3];
+		memcpy(out->dest, p->source, 4);
+		memcpy(out->source, p->dest, 4);
 		
-		out->ACKSeqNum = p->seq_num - 1; 	
+		out->seqNum = p->seq_num; 	
 	}
 	out->timeout = 0;
 	out->next = NULL;
@@ -48,8 +108,11 @@ sequence * getStoredSeqNumber(packet * p) {
 		sequence * temp;
 		//Search the list for a record
 		for(temp = first; temp != NULL; temp = temp->next) {
-			if ((p->type == TYPE_DATA && (uint32_t)*temp->address == (uint32_t)*p->source) ||
-					(p->type == TYPE_ACK && (uint32_t)*temp->address == (uint32_t)*p->dest)) {
+		
+			//Check for timeout here
+		
+			if ((p->type == TYPE_DATA && memcmp(temp->source, p->source, 4) == 0 && memcmp(temp->dest, p->dest, 4) == 0) ||
+					(p->type == TYPE_ACK && memcmp(temp->source, p->dest, 4) == 0 && memcmp(temp->dest, p->source, 4) == 0)) {
 				return temp;
 			}
 		}
@@ -62,34 +125,66 @@ sequence * getStoredSeqNumber(packet * p) {
 
 int checkDataQueue(packet * p) {
 	sequence * s;
-	
 	s = getStoredSeqNumber(p);
-
-	return -7;
+	if (p->seq_num > s->seqNum)
+		return NOT_OLD_PACKET;
+	else
+		return OLD_PACKET;
 }
 
-int checkACKQueue(packet * P) {
-	return -5;
+int checkACKQueue(packet * p) {
+	sequence * s;
+	s = getStoredSeqNumber(p);
+	if (p->seq_num > s->seqNum) {
+		s->seqNum = p->seq_num;
+		return NOT_OLD_PACKET;
+	} else
+		return OLD_PACKET;
 }
 
-int isNew(packet * p) {
+int isOld(packet * p) {
 	switch (p->type) {
-		case TYPE_BEACON:
-			return 0;
 		case TYPE_ACK:
 			return checkACKQueue(p);
 		case TYPE_DATA:
 			return checkDataQueue(p);
 		default:
-			return 0;
+			return OLD_PACKET;
 	}
-	return 0;
+	return OLD_PACKET;
 }
 
-void addSequenceNumberToPacket(packet * p) {
-	
+void addSequenceNumber(packet * p) {
+	destSeq * temp = getLocalSeqNumber(p);
+	p->seq_num = temp->num;
 }
 
 int keepPacket(packet * ACK, packet * p) {
+	if (ACK->type != TYPE_ACK) 
+		return KEEP_PACKET;
 
+	if (p->type == TYPE_DATA) {
+		//Packet is for a different address pair
+		if (!(memcmp(ACK->source, p->dest, 4) == 0 && memcmp(ACK->dest, p->source, 4) == 0)) {
+			return KEEP_PACKET;
+		} else {
+			if (p->seq_num <= ACK->seq_num) {
+				return DELETE_PACKET;
+			}
+			return KEEP_PACKET;
+		}
+				
+	} else if (p->type == TYPE_ACK) {
+		//Packet is for a different address pair
+		if (!(memcmp(ACK->dest, p->dest, 4) == 0 && memcmp(ACK->source, p->source, 4) == 0)) {
+			return KEEP_PACKET;
+		} else {
+			if (p->seq_num < ACK->seq_num) {
+				return DELETE_PACKET;
+			}
+			return KEEP_PACKET;
+		}
+	} else {
+		return KEEP_PACKET;
+	}
 }

@@ -1,26 +1,29 @@
-#ifndef SEQUENCE_H
+/**
+ * Manages all sequence number related functions
+ */
+ #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
 #include "packet.h"
 #include <stdint.h>
 
-typedef struct seqHolder {
-	char address[4];
-	uint32_t ACKSeqNum;
-	uint32_t dataSeqNum;
-	uint32_t timeout;
-	struct seqHolder * next;
-} sequence;
+//Lifetime of sequence numbers in seconds, must be greater than lifetime of packet
+#define SEQUENCE_TIMEOUT 60
 
-//Tells whether this is a new packet or if it has been seen before
-//Returns 1 for new, 0 for old
-int isNew(packet * p);
+#define KEEP_PACKET 1
+#define DELETE_PACKET 0
+#define NOT_OLD_PACKET 0
+#define OLD_PACKET 1
+
+//Tells whether this is an old packet or if it MAY be new
+//Returns OLD_PACKET if it is an old packet, returns NOT_OLD_PACKET if it may be new
+int isOld(packet * p);
 
 //Adds the proper sequence number to the given packet
-void addSequenceNumberToPacket(packet * p);
+void addSequenceNumber(packet * p);
 
 //Tells whether you should keep the packet p based on the given ACK
-//Returns 1 if you keep, 0 if you delete
+//Returns KEEP_PACKET if you should keep, DELETE_PACKET if should delete
 int keepPacket(packet * ACK, packet * p);
 
 #endif
