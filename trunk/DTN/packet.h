@@ -1,8 +1,11 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include <inttypes.h>
+//<<<<<<< .mine
+#include<inttypes.h>
 
+
+//>>>>>>> .r7
 /* Maximum size of data chunk that can be sent in a packet */
 
 #define MAX_FRAME_SIZE		1000
@@ -20,8 +23,5 @@ typedef struct Apacket {
 	uint32_t ttl;
 	char data[MAX_FRAME_SIZE];
 } packet;
-
 #pragma pack(pop)
-
-
 #endif
