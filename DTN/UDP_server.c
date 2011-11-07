@@ -19,15 +19,12 @@ void send_beacon();
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
+
 void send_all(char *ip){}
-void data_handler();
-void ack_handler();
-void add_node(struct Apacket *packet){}
-void remove_nodes(struct Apacket *packet){}
+void add_packetnode(packet *p1){}
+void send_packetnode(struct Apacket *packet,char*ip){}
+void delete_packetnode(struct Apacket *packet){}
 int update_seq_num(struct Apacket *packet){}
-
-
-
 
 int initialize() {
 		struct in_addr a;
@@ -148,7 +145,7 @@ void data_handler(struct Apacket *packet) {
 	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
 
 	if(update_seq_num(packet)) {
-		add_node(packet);
+		add_packetnode(packet);
 	}
 	return ;
 }
@@ -157,10 +154,11 @@ void ack_handler(struct Apacket *packet) {
 	/*	Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return */
 
 	if(update_seq_num(packet)) {
-		add_node(packet);
-		remove_nodes(packet);
+		add_packetnode(packet);
+                delete_packetnode(packet);
 	}
 	return ;
 }
+
 
 
