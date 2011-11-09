@@ -13,19 +13,21 @@
 #include<signal.h>
 #include<sys/time.h>
 #include"packet.h"
-
+#include"queuestruc.h"
+#include"sequence.h"
+#include"UDP_server.h"
 #define INTERVAL 5000		/* number of milliseconds to go off */
-void send_beacon();
+//void send_beacon();
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
 
-void send_all(char *ip){}
+/*void send_all(char *ip){}
 void add_packetnode(packet *p1){}
 void send_packetnode(struct Apacket *packet,char*ip){}
 void delete_packetnode(struct Apacket *packet){}
 int update_seq_num(struct Apacket *packet){}
-
+*/
 int initialize() {
 		struct in_addr a;
 		char host[100];
@@ -144,7 +146,7 @@ void send_beacon() {
 void data_handler(struct Apacket *packet) {
 	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
 
-	if(update_seq_num(packet)) {
+	if(isOld(packet)==NOT_OLD_PACKET) {
 		add_packetnode(packet);
 	}
 	return ;
@@ -153,7 +155,7 @@ void data_handler(struct Apacket *packet) {
 void ack_handler(struct Apacket *packet) {
 	/*	Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return */
 
-	if(update_seq_num(packet)) {
+	if(isOld(packet)==NOT_OLD_PACKET) {
 		add_packetnode(packet);
                 delete_packetnode(packet);
 	}
