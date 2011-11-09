@@ -6,6 +6,8 @@
 #include"UDP_server.h"
 #include"sequence.h"
 
+queue *root,*head;
+
 void add_packetnode(packet *p1)
 {
 queue *node,*head3,*last;

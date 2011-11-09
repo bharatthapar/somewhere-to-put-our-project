@@ -11,8 +11,6 @@ packet *p;
 struct dataqueue *next;
 }queue;
 
-queue *root,*head;
-
 
 void add_packetnode(struct Apacket *packet);
 void send_all(char *ip);
