@@ -95,12 +95,17 @@ head2=root;
 while(head2!=NULL)
 {
 p2=head2->p;
-if(p2.type==p1->type && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num==p1->seq_num)
+if(p2.type==TYPE_ACK && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num<p1->seq_num)
 {
 (head2->prev)->next=head2->next;
 (head2->next)->prev=head2->prev;
 free(head2);
-break;
+}
+if(p2.type==TYPE_DATA && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num<=p1->seq_num)
+{
+(head2->prev)->next=head2->next;
+(head2->next)->prev=head2->prev;
+free(head2);
 }
 }}
 }
