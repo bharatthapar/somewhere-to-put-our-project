@@ -1,18 +1,18 @@
 #include<stdio.h>
 #include<stdlib.h>
+
 #include"queuestruc.h"
 #include"packet.h"
 #include"UDP_server.h"
 #include"sequence.h"
 
-
 void add_packetnode(packet *p1)
 {
-queue *node;
+queue *node,*head3,*last;
 if(root==NULL)
 {
 node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
-node->p=*p1;
+node->p=p1;
 node->prev=NULL;
 node->next=NULL;
 root=node;
@@ -21,17 +21,27 @@ head=root;
 
 else
 {
-if(head->next==NULL)
+head3=head;
+while(head3!=NULL)
 {
+if(strcmp((head3->p)->source,p1->source)==0 && strcmp((head3->p)->dest,p1->dest)==0)
+{
+printf("Duplicate Packet.. won't add it to queue");
+break;
+}
+last=head3;
+head3=head3->next;
+}
+
 node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
-node->p=*p1;
-node->prev=head;
+node->p=p1;
+node->prev=last;
 node->next=NULL;
-head->next=node;
-head=node;
+last->next=node;
+last=node;
 }
 }
-}
+
 
 
 void send_all(char *serverip)
@@ -47,16 +57,17 @@ printf("No packets in queue right now. Aborted send packets operation");
 head2=root;
 while(head2!=NULL)
 {
-sendPackets(&(head2->p), serverip);
+sendPackets((head2->p), serverip);
 head2=head2->next;
 }
 //return 0;
 }
 
+/*
 void send_packetnode(packet *p1,char *serverip)
 {
 queue *node,*head2;
-packet p2;
+packet *p2;
 
 if(root==NULL)
 {
@@ -71,18 +82,19 @@ while(head2!=NULL)
 p2=head2->p;
 if(p2.type==p1->type && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num==p1->seq_num)
 {
-sendPackets(&(head2->p), serverip);
+sendPackets((head2->p), serverip);
 break;
 }
 }}
 
 }
+*/
 
 void delete_packetnode(packet *p1)
 {
-queue *node,*head2;
-packet p2;
-
+queue *node,*head2,*temp;
+packet *p2;
+int result;
 if(root==NULL)
 {
 printf("No packets in queue right now. Aborted delete node operation");
@@ -94,19 +106,18 @@ head2=root;
 while(head2!=NULL)
 {
 p2=head2->p;
-if(p2.type==TYPE_ACK && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num<p1->seq_num)
+result=keepPacket(p1,p2);
+if(result==0)
 {
 (head2->prev)->next=head2->next;
 (head2->next)->prev=head2->prev;
-free(head2);
+temp=head2;
+free(temp);
 }
-if(p2.type==TYPE_DATA && strcmp(p2.source,p1->source)==0 && strcmp(p2.dest,p1->dest)==0 && p2.seq_num<=p1->seq_num)
-{
-(head2->prev)->next=head2->next;
-(head2->next)->prev=head2->prev;
-free(head2);
+head2=head2->next;
 }
-}}
+}
+
 }
 
 

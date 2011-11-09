@@ -7,7 +7,7 @@
 typedef struct dataqueue
 {
 struct dataqueue *prev;
-packet p;
+packet *p;
 struct dataqueue *next;
 }queue;
 
