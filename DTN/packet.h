@@ -1,11 +1,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-//<<<<<<< .mine
 #include<inttypes.h>
 
 
-//>>>>>>> .r7
 /* Maximum size of data chunk that can be sent in a packet */
 
 #define MAX_FRAME_SIZE		1000
