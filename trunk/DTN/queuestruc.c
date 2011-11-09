@@ -5,7 +5,6 @@
 #include"UDP_server.h"
 #include"sequence.h"
 
-void sendPackets(struct Apacket *packet, char *ip){}
 
 void add_packetnode(packet *p1)
 {
