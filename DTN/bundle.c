@@ -13,7 +13,7 @@ void newPacket(char * source, char * dest) {
 	memcpy(p->dest, dest, 4);
 	memcpy(p->source, source, 4);
 	sprintf(p->data, "TEST PACKET");
-	p->len = sizeof(packet) - MAX_FRAME_SIZE + 11;
+	p->length = sizeof(packet) - MAX_FRAME_SIZE + 11;
 	addSequenceNumber(p);
 	add_packetnode(p);
 }
