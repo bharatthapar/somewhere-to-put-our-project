@@ -41,6 +41,22 @@ node->prev=last;
 node->next=NULL;
 last->next=node;
 last=node;
+}}
+
+void print_all()
+{
+queue *head3;
+int i=0;
+printf("Printing packets in the queue:\n");
+while(head3!=NULL)
+{
+printf(i,": %d",head3->p->type);
+printf(" %s",head3->p->source);
+printf(" %s",head3->p->dest);
+printf(" %d",head3->p->seq_num);
+printf(" %s\n",head3->p->data);
+head3=head3->next;
+i++;
 }
 }
 
