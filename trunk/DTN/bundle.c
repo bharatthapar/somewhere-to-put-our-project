@@ -22,5 +22,6 @@ void newPacket(char * source, char * dest) {
 	sprintf(p->data, "TEST PACKET");
 	p->length = sizeof(packet) - MAX_FRAME_SIZE + 11;
 	addSequenceNumber(p);
+	printf("Seq num %d\n", p->seq_num);
 	add_packetnode(p);
 }
