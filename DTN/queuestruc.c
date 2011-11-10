@@ -44,6 +44,7 @@ node->next=NULL;
 last->next=node;
 last=node;
 }
+printf("added packet to queue");
 end:
 printf("");
 }
