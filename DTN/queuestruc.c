@@ -42,13 +42,14 @@ node->next=NULL;
 last->next=node;
 last=node;
 }
-print_all();
+//print_all();
 }
 
 void print_all()
 {
 queue *head3;
 int i=0;
+head3 = root;
 printf("Printing packets in the queue:\n");
 while(head3!=NULL)
 {
