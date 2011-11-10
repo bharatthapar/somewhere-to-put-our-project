@@ -92,12 +92,12 @@ void *waitForPacket() {
             		perror("Bind");
             		exit(1);
         	}
-		printf("\nUDPServer Waiting for client on port 8000");
+		//printf("\nUDPServer Waiting for client on port 8000");
 	        fflush(stdout);
 		while(1) {
-			printf("Im here as well\n");		
+			//printf("Im here as well\n");		
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
-	  		printf("here too\n");
+	  		//printf("here too\n");
 		  	//recv_data[bytes_read] = '\0';
 			if(memcmp(packet1->source,my_ip,4)!=0)
 			{	printf("\n\n\n%s\n\n\n",my_ip);
@@ -173,11 +173,11 @@ void data_handler(struct Apacket *packet) {
 		{		
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
-			//add_packetnode(ack);
+			add_packetnode(ack);
 		}
 		else 
 		{
-			//add_packetnode(packet);
+			add_packetnode(packet);
 		}
 	}
 	return ;
