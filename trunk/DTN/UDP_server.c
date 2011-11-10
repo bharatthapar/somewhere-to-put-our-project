@@ -26,7 +26,7 @@
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
-char *my_ip;
+char my_ip[16];
 
 void get_my_ip() {
 	 int fd;
@@ -43,8 +43,9 @@ void get_my_ip() {
 	 ioctl(fd, SIOCGIFADDR, &ifr);
 	
 	 close(fd);
-	 my_ip=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-	
+	 char *temp=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+	//printf("\n\n\n%s\n\n\n",my_ip);
+	strcpy(my_ip,temp);
 }
 
 
@@ -58,11 +59,6 @@ int initialize() {
 		struct hostent *name=gethostbyname(host);
 		get_my_ip();
 		printf("IP is %s\n",my_ip);
-		while (*name->h_addr_list)
-        	{
-            		bcopy(*name->h_addr_list++, (char *) &a, sizeof(a));
-		        printf("address: %s\n", inet_ntoa(a));
-        	}
 		MainSocket = socket(AF_INET,SOCK_DGRAM,0);
 		if(MainSocket == -1) {
 			perror("Socket");
@@ -103,8 +99,8 @@ void *waitForPacket() {
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 	  		printf("here too\n");
 		  	//recv_data[bytes_read] = '\0';
-			if(strcmp(packet1->source,my_ip)==0)
-			{
+			if(memcmp(packet1->source,my_ip,4)!=0)
+			{	printf("\n\n\n%s\n\n\n",my_ip);
 	          	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
 	          	printf("\n%s\n", packet1->data);
 
