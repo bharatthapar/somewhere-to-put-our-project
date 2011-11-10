@@ -3,6 +3,7 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
+#include<net/if.h>
 #include<errno.h>
 #include<arpa/inet.h>
 #include<string.h>
@@ -12,29 +13,51 @@
 #include<unistd.h>
 #include<signal.h>
 #include<sys/time.h>
+
+#include<sys/ioctl.h>
+
 #include"packet.h"
 #include"queuestruc.h"
 #include"sequence.h"
 #include"UDP_server.h"
+#include"bundle.h"
 #define INTERVAL 5000		/* number of milliseconds to go off */
-//void send_beacon();
+
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
+char *my_ip;
 
-/*void send_all(char *ip){}
-void add_packetnode(packet *p1){}
-void send_packetnode(struct Apacket *packet,char*ip){}
-void delete_packetnode(struct Apacket *packet){}
-int update_seq_num(struct Apacket *packet){}
-*/
+void get_my_ip() {
+	 int fd;
+	 struct ifreq ifr;
+
+	 fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+	 /* I want to get an IPv4 IP address */
+	 ifr.ifr_addr.sa_family = AF_INET;
+
+	 /* I want IP address attached to "eth0" */
+	 strncpy(ifr.ifr_name, "eth1", IFNAMSIZ-1);
+	
+	 ioctl(fd, SIOCGIFADDR, &ifr);
+	
+	 close(fd);
+	 my_ip=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+	
+}
+
+
+
 int initialize() {
 		struct in_addr a;
 		char host[100];
 		gethostname(host,sizeof(host));	
+		
 		printf("Host is %s\n\n",host);	
 		struct hostent *name=gethostbyname(host);
-		printf("IP is %s\n",inet_ntoa(*(struct in_addr *)*name->h_addr_list));
+		get_my_ip();
+		printf("IP is %s\n",my_ip);
 		while (*name->h_addr_list)
         	{
             		bcopy(*name->h_addr_list++, (char *) &a, sizeof(a));
@@ -88,10 +111,10 @@ void *waitForPacket() {
 				send_all(packet1->source);
 			}
 			else if(packet1->type == TYPE_DATA) {
-				data_handler();
+				data_handler(packet1);
 			}
 			else if(packet1->type == TYPE_ACK) {
-				ack_handler();
+				ack_handler(packet1);
 			}
 		  	fflush(stdout);
 		}
@@ -145,15 +168,24 @@ void send_beacon() {
 
 void data_handler(struct Apacket *packet) {
 	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
-
+	struct Apacket *ack;
 	if(isOld(packet)==NOT_OLD_PACKET) {
-		add_packetnode(packet);
+		if(!memcmp(packet->dest,my_ip,4))	//The received packet is destined for me.
+		{		
+			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
+			isOld(ack);
+			add_packetnode(ack);
+		}
+		else 
+		{
+			add_packetnode(packet);
+		}
 	}
 	return ;
 }
 
 void ack_handler(struct Apacket *packet) {
-	/*	Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return */
+	/*Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return0*/
 
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		add_packetnode(packet);
