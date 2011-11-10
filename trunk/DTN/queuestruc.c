@@ -58,6 +58,7 @@ printf(" %s\n",head3->p->data);
 head3=head3->next;
 i++;
 }
+printf("Queue ends\n");
 }
 
 
