@@ -41,7 +41,9 @@ node->prev=last;
 node->next=NULL;
 last->next=node;
 last=node;
-}}
+}
+print_all();
+}
 
 void print_all()
 {
