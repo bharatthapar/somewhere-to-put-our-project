@@ -26,7 +26,7 @@ else
 head3=head;
 while(head3!=NULL)
 {
-if(strcmp((head3->p)->source,p1->source)==0 && strcmp((head3->p)->dest,p1->dest)==0 && (head3->p).seq_num==p1->seq_num)
+if(strcmp((head3->p)->source,p1->source)==0 && strcmp((head3->p)->dest,p1->dest)==0 && (head3->p)->seq_num==p1->seq_num)
 {
 printf("Duplicate Packet.. won't add it to queue");
 break;
