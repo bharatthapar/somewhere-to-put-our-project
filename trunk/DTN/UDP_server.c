@@ -162,8 +162,9 @@ void send_beacon() {
 	packet .ttl = 2;
 	sprintf(packet.data,"Beacon\n");
 	printf("%s\n",packet.data);
-	packet.length = sizeof(packet);
-	sendPackets(&packet,"255.255.255.255");
+	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
+	sendPackets(&packet,"192.168.1.255");
+	newPacket(my_ip,"192.168.1.124");
 }
 
 void data_handler(struct Apacket *packet) {
