@@ -10,6 +10,7 @@ queue *root,*head;
 
 void add_packetnode(packet *p1)
 {
+int dup=0;
 queue *node,*head3,*last;
 if(root==NULL)
 {
@@ -29,12 +30,13 @@ while(head3!=NULL)
 if(strcmp((head3->p)->source,p1->source)==0 && strcmp((head3->p)->dest,p1->dest)==0 && (head3->p)->seq_num==p1->seq_num)
 {
 printf("Duplicate Packet.. won't add it to queue");
+dup=1;
 break;
 }
 last=head3;
 head3=head3->next;
 }
-
+if(dup==1)goto end;
 node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
 node->p=p1;
 node->prev=last;
@@ -42,14 +44,15 @@ node->next=NULL;
 last->next=node;
 last=node;
 }
-//print_all();
+end:
+printf("");
 }
 
 void print_all()
 {
 queue *head3;
 int i=0;
-head3 = root;
+head3=root;
 printf("Printing packets in the queue:\n");
 while(head3!=NULL)
 {
