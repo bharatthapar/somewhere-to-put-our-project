@@ -103,7 +103,8 @@ void *waitForPacket() {
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 	  		printf("here too\n");
 		  	//recv_data[bytes_read] = '\0';
-
+			if(strcmp(packet1->source,my_ip)==0)
+			{
 	          	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
 	          	printf("\n%s\n", packet1->data);
 
@@ -115,6 +116,7 @@ void *waitForPacket() {
 			}
 			else if(packet1->type == TYPE_ACK) {
 				ack_handler(packet1);
+			}
 			}
 		  	fflush(stdout);
 		}
@@ -175,11 +177,11 @@ void data_handler(struct Apacket *packet) {
 		{		
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
-			add_packetnode(ack);
+			//add_packetnode(ack);
 		}
 		else 
 		{
-			add_packetnode(packet);
+			//add_packetnode(packet);
 		}
 	}
 	return ;
