@@ -38,7 +38,7 @@ void get_my_ip() {
 	 ifr.ifr_addr.sa_family = AF_INET;
 
 	 /* I want IP address attached to "eth0" */
-	 strncpy(ifr.ifr_name, "eth1", IFNAMSIZ-1);
+	 strncpy(ifr.ifr_name, "eth4", IFNAMSIZ-1);
 	
 	 ioctl(fd, SIOCGIFADDR, &ifr);
 	
