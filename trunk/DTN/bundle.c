@@ -9,7 +9,7 @@ packet * deliverPacket(packet * p) {
 	memcpy(ack->source, p->dest, 4);
 	ack->type = TYPE_ACK;
 	sprintf(ack->data, "ACK");
-	ack->len = sizeof(packet) - MAX_FRAME_SIZE + 3;
+	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
 	ack->seq_num = p->seq_num;
 	return ack;
 }
