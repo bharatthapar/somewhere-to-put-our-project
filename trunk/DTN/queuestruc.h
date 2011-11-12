@@ -1,15 +1,13 @@
 #ifndef QUEUESTRUC_H
 #define QUEUESTRUC_H
 
-#include"packet.h"
-#include<inttypes.h>
+#include "packet.h"
+#include <inttypes.h>
 
-typedef struct dataqueue
-{
-struct dataqueue *prev;
-packet *p;
-struct dataqueue *next;
-}queue;
+typedef struct dataqueue {
+	packet *p;
+	struct dataqueue *next;
+} queue;
 
 
 void add_packetnode(struct Apacket *packet);
