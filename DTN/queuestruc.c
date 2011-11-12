@@ -81,7 +81,7 @@ void send_all(char *serverip) {
 
 	head2=root;
 	while(head2!=NULL) {
-		//sendPackets((head2->p), serverip);
+		sendPackets((head2->p), serverip);
 		head2=head2->next;
 	}
 	//return 0;
