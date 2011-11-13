@@ -26,7 +26,7 @@
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
-char *my_ip[4],*temp;
+char *my_ip[5],*temp;
 
 
 void * oldMain() {
@@ -130,17 +130,17 @@ char hostbuf[256];
 			////printf("%s.....",my_ip[i]);
 	  	}
 		
-	my_ip[0]=atoi(my_ip[0]);
-	my_ip[1]=atoi(my_ip[1]);
-my_ip[2]=atoi(my_ip[2]);
-my_ip[3]=atoi(my_ip[3]);
+	ipp[0]=atoi(my_ip[0]);
+	ipp[1]=atoi(my_ip[1]);
+ipp[2]=atoi(my_ip[2]);
+ipp[3]=atoi(my_ip[3]);
 	//printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
 	
 	
-	ipp[0] = (int)my_ip[0];
-	ipp[1] = (int)my_ip[1];
-	ipp[2] = (int)my_ip[2];
-	ipp[3] = (int)my_ip[3];
+	//ipp[0] = (int)my_ip[0];
+	//ipp[1] = (int)my_ip[1];
+	//ipp[2] = (int)my_ip[2];
+	//ipp[3] = (int)my_ip[3];
 
     //    //printf("Hostname: %s Host IP: %s\n", hostbuf, my_ip);
 
@@ -207,12 +207,12 @@ void *waitForPacket() {
 			
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 
-			if(packet1->source[0]!=(my_ip[0]-256)||packet1->source[1]!=(my_ip[1]-256)||packet1->source[2]!=my_ip[2]||packet1->source[3]!=(my_ip[3]-256))
+			if(memcmp(packet1->source, ipp, 4))
 			{	////printf("\n\n\n%s\n\n\n",my_ip);
 				////printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
 	          //	//printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
 	          //	//printf("\n%s\n", packet1->data);
-
+				//printf("GOT PACKET\n");
 			if(packet1->type == TYPE_BEACON) {
 				////printf("Received beacon from %s, sending all packets\n",inet_ntoa(client_addr.sin_addr));
 				send_all(inet_ntoa(client_addr.sin_addr));
@@ -251,10 +251,10 @@ void send_beacon() {
 	sprintf(packet.data,"Beacon\n");
 	////printf("%s\n",packet.data);
 	////printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);	
-	packet.source[0]=my_ip[0];
-	packet.source[1]=my_ip[1];
-	packet.source[2]=my_ip[2];
-	packet.source[3]=my_ip[3];
+	packet.source[0]=ipp[0];
+	packet.source[1]=ipp[1];
+	packet.source[2]=ipp[2];
+	packet.source[3]=ipp[3];
 	////printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
 	char dest[4]={192,168,1,105};
