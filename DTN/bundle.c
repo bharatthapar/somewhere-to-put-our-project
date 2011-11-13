@@ -11,6 +11,7 @@ packet * deliverPacket(packet * p) {
 	sprintf(ack->data, "ACK");
 	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
 	ack->seq_num = p->seq_num;
+	isOld(ack);
 	printf("Seq num %d\n", p->seq_num);
 	return ack;
 }
