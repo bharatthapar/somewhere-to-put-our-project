@@ -276,7 +276,7 @@ void ack_handler(struct Apacket *packet) {
 
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		add_packetnode(packet);
-               // delete_packetnode(packet);
+                delete_packetnode(packet);
 	}
 	return ;
 }

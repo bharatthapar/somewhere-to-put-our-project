@@ -20,7 +20,11 @@ void add_packetnode(packet *p1) {
 	} else {
 		head3=head;
 		while(head3!=NULL) {
+
 			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num) {
+				printf("IP in duplicate is %d.%d.%d.%d\n\n",p1->source[0],p1->source[1],p1->source[2],p1->source[3]);	
+				printf("%d\n%d\n",p1->type,(head3->p)->type);
+				printf("Seq num is %d\n",p1->seq_num);
 				printf("Duplicate Packet.. won't add it to queue\n");
 				dup=1;
 				break;
@@ -35,6 +39,8 @@ void add_packetnode(packet *p1) {
 			last->next=node;
 			last=node;
 			printf("added packet to queue\n");
+			if(p1->type == TYPE_ACK)
+				printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
 		}
 	}
 	printf("");
