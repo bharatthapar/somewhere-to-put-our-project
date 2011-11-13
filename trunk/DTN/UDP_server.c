@@ -13,7 +13,7 @@
 #include<unistd.h>
 #include<signal.h>
 #include<sys/time.h>
-
+#include<stdlib.h>
 #include<sys/ioctl.h>
 
 #include"packet.h"
@@ -26,43 +26,93 @@
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
-char my_ip[4];
+char *my_ip[8],*temp;
 
 void get_my_ip() {
-	 int fd,a,b,c,d;
+	/* int fd;
+	int a,b,c,d;
 	 struct ifreq ifr;
 
 	 fd = socket(AF_INET, SOCK_DGRAM, 0);
-
+*/
 	 /* I want to get an IPv4 IP address */
-	 ifr.ifr_addr.sa_family = AF_INET;
+//	 ifr.ifr_addr.sa_family = AF_INET;
 
 	 /* I want IP address attached to "eth0" */
-	 strncpy(ifr.ifr_name, "eth1", IFNAMSIZ-1);
+//	 strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
 	
-	 ioctl(fd, SIOCGIFADDR, &ifr);
+//	 ioctl(fd, SIOCGIFADDR, &ifr);
 	
-	 close(fd);
-	 char *temp=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+//	 close(fd);
+//	 char *temp=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
 	//printf("\n\n\n%s\n\n\n",my_ip);
 	//strcpy(my_ip,temp);
 //	sscanf(temp,my_ip
 	//inet_aton(temp,(struct in_addr*)my_ip); 
-	sscanf(temp,"%u.%u.%u.%u",&a,&b,&c,&d);
-	/*if (a<0)
-		a=a+;
-	if (b<0)
-		b=b+256;
-	if (c<0)
-		c=c+256;
-	if (d<0)
-		d=d+256;
-*/
+/*	sscanf(temp,"%u.%u.%u.%u",&a,&b,&c,&d);
+	
 
-	my_ip[0] = a;
+	my_ip[0] = a+256;
 	my_ip[1] = b;
 	my_ip[2] = c;
 	my_ip[3] = d;
+
+
+
+	if (my_ip[0]<-1)
+		my_ip[0]=my_ip[0]+256;
+	if (my_ip[1]<0)
+		my_ip[1]=my_ip[1]+256;
+	if (my_ip[2]<0)
+		my_ip[2]=my_ip[2]+256;
+	if (my_ip[3]<0)
+		my_ip[3]=my_ip[3]+256;
+
+printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
+*/
+char hostbuf[256];
+       // char * ipbuf;
+        struct hostent *hostentry;
+        int ret;
+
+        ret = gethostname(hostbuf,sizeof(hostbuf));
+
+        if(-1 == ret){
+                perror("gethostname");
+                exit(1);
+        }
+
+        hostentry = gethostbyname(hostbuf);
+
+        if(NULL == hostentry){
+                perror("gethostbyname");
+                exit(1);
+        }
+	
+        temp = inet_ntoa(*((struct in_addr *)hostentry->h_addr_list[0]));
+
+        if(NULL == my_ip){
+                perror("inet_ntoa");
+                exit(1);
+        }
+	int i =0;
+	printf("%s\n",temp);
+	my_ip[0] = (char)strtok(temp,".");
+		
+		while (my_ip[i])
+	 	{
+			 i++;
+	  		 my_ip[i] = strtok (NULL, ".");
+			//itoa(my_ip[i],my_ip[i][0],10);
+			printf("%s.....",my_ip[i]);
+	  	}
+		
+	printf("IP is %d",my_ip);
+    //    printf("Hostname: %s Host IP: %s\n", hostbuf, my_ip);
+
+
+
+
 }
 
 
@@ -75,7 +125,7 @@ int initialize() {
 		printf("Host is %s\n\n",host);	
 		struct hostent *name=gethostbyname(host);
 		get_my_ip();
-		printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
+		//printf("IP is %s",my_ip[0]);
 		MainSocket = socket(AF_INET,SOCK_DGRAM,0);
 		if(MainSocket == -1) {
 			perror("Socket");
@@ -109,14 +159,12 @@ void *waitForPacket() {
             		perror("Bind");
             		exit(1);
         	}
-		//printf("\nUDPServer Waiting for client on port 8000");
+		
 	        fflush(stdout);
 		while(1) {
-			//printf("Im here as well\n");		
-			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
-	  		//printf("here too\n");
-		  	//recv_data[bytes_read] = '\0';
 			
+			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
+	  		
 			if(memcmp(packet1->source,my_ip,4)!=0)
 			{	//printf("\n\n\n%s\n\n\n",my_ip);
 				printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
@@ -124,7 +172,8 @@ void *waitForPacket() {
 	          	printf("\n%s\n", packet1->data);
 
 			if(packet1->type == TYPE_BEACON) {
-				send_all(packet1->source);
+				printf("Received beacon from %s, sending all packets\n",inet_ntoa(client_addr.sin_addr));
+				send_all(inet_ntoa(client_addr.sin_addr));
 			}
 			else if(packet1->type == TYPE_DATA) {
 				data_handler(packet1);
@@ -142,6 +191,7 @@ void sendPackets(struct Apacket *packet, char *ip) {
 		send_sock = MainSocket;
 		server_addr.sin_addr.s_addr = inet_addr(ip);
 		server_addr.sin_port = htons(8000);
+		bzero(&(server_addr.sin_zero),8);
 		printf("Sending to %s on port %d\n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
 		sendto(send_sock, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
 		printf("bhej diya\n");
@@ -209,7 +259,7 @@ void ack_handler(struct Apacket *packet) {
 
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		add_packetnode(packet);
-                delete_packetnode(packet);
+               // delete_packetnode(packet);
 	}
 	return ;
 }
