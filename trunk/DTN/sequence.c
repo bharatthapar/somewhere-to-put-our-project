@@ -169,6 +169,7 @@ int keepPacket(packet * ACK, packet * p) {
 			return KEEP_PACKET;
 		} else {
 			if (p->seq_num <= ACK->seq_num) {
+				printf("Deleting DATA packet with seq %d bacause of seq %d\n",p->seq_num,ACK->seq_num);
 				return DELETE_PACKET;
 			}
 			return KEEP_PACKET;
@@ -180,6 +181,7 @@ int keepPacket(packet * ACK, packet * p) {
 			return KEEP_PACKET;
 		} else {
 			if (p->seq_num < ACK->seq_num) {
+				printf("Deleting ACK packet with seq %d bacause of seq %d\n",p->seq_num,ACK->seq_num);
 				return DELETE_PACKET;
 			}
 			return KEEP_PACKET;

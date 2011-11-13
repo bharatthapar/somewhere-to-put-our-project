@@ -28,6 +28,7 @@ int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
 char *my_ip[4],*temp;
 char ipp[4];
+
 void get_my_ip() {
 	/* int fd;
 	int a,b,c,d;
@@ -96,7 +97,7 @@ char hostbuf[256];
                 exit(1);
         }
 	int i =0;
-	printf("%s\n",temp);
+	//printf("%s\n",temp);
 	my_ip[0] = (char*)strtok(temp,".");
 		
 		while (my_ip[i])
@@ -104,14 +105,14 @@ char hostbuf[256];
 			 i++;
 	  		 my_ip[i] = strtok (NULL, ".");
 			//itoa(my_ip[i],my_ip[i][0],10);
-			printf("%s.....",my_ip[i]);
+			//printf("%s.....",my_ip[i]);
 	  	}
 		
 	my_ip[0]=atoi(my_ip[0]);
 	my_ip[1]=atoi(my_ip[1]);
 my_ip[2]=atoi(my_ip[2]);
 my_ip[3]=atoi(my_ip[3]);
-	printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
+//	printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
 	
 	
 	ipp[0] = (int)my_ip[0];
@@ -133,7 +134,7 @@ int initialize() {
 		char host[100];
 		gethostname(host,sizeof(host));	
 		
-		printf("Host is %s\n\n",host);	
+		//printf("Host is %s\n\n",host);	
 		struct hostent *name=gethostbyname(host);
 		get_my_ip();
 		//printf("IP is %s",my_ip[0]);
@@ -176,14 +177,14 @@ void *waitForPacket() {
 			
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 	  		
-			if(packet1->source[0]!=(my_ip[0]-256)||packet1->source[1]!=(my_ip[1]-256)||packet1->source[2]!=my_ip[2]||packet1->source[3]!=my_ip[3])
+			if(packet1->source[0]!=(my_ip[0]-256)||packet1->source[1]!=(my_ip[1]-256)||packet1->source[2]!=my_ip[2]||packet1->source[3]!=(my_ip[3]-256))
 			{	//printf("\n\n\n%s\n\n\n",my_ip);
-				printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
-	          	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-	          	printf("\n%s\n", packet1->data);
+				//printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
+	          //	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
+	          //	printf("\n%s\n", packet1->data);
 
 			if(packet1->type == TYPE_BEACON) {
-				printf("Received beacon from %s, sending all packets\n",inet_ntoa(client_addr.sin_addr));
+				//printf("Received beacon from %s, sending all packets\n",inet_ntoa(client_addr.sin_addr));
 				send_all(inet_ntoa(client_addr.sin_addr));
 			}
 			else if(packet1->type == TYPE_DATA) {
@@ -203,9 +204,10 @@ void sendPackets(struct Apacket *packet, char *ip) {
 		server_addr.sin_addr.s_addr = inet_addr(ip);
 		server_addr.sin_port = htons(8000);
 		bzero(&(server_addr.sin_zero),8);
-		printf("Sending to %s on port %d\n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+		//printf("Sending to %s on port %d\n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+		//printf("Data sent is %s with sequence number %d\n",packet->data,packet->seq_num);
 		sendto(send_sock, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
-		printf("bhej diya\n");
+		//printf("bhej diya\n");
 }
 
 int main(int argc, char *argv[])
@@ -233,24 +235,25 @@ int main(int argc, char *argv[])
 }
 
 void send_beacon() {
-	printf("Im in\n");
+	//printf("Im in\n");
 	struct Apacket packet;
 	packet.type = 1;
 	packet.seq_num = 0;
 	packet .ttl = 2;
 	sprintf(packet.data,"Beacon\n");
-	printf("%s\n",packet.data);
-	printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);	
+	//printf("%s\n",packet.data);
+	//printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);	
 	packet.source[0]=my_ip[0];
 	packet.source[1]=my_ip[1];
 	packet.source[2]=my_ip[2];
 	packet.source[3]=my_ip[3];
-	printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
+	//printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
-	char dest[4]={192,168,1,124};
+	char dest[4]={192,168,1,125};
 	sendPackets(&packet,"192.168.1.255");
 	
 	newPacket(ipp,dest);
+	
 }
 
 void data_handler(struct Apacket *packet) {
@@ -258,10 +261,11 @@ void data_handler(struct Apacket *packet) {
 	struct Apacket *ack;
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		if(!memcmp(packet->dest,ipp,4))	//The received packet is destined for me.
-		{	printf("Hello Hello");	
+		{	//printf("Hello Hello");	
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
 			add_packetnode(ack);
+			delete_packetnode(ack);
 		}
 		else 
 		{
@@ -275,8 +279,10 @@ void ack_handler(struct Apacket *packet) {
 	/*Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return0*/
 
 	if(isOld(packet)==NOT_OLD_PACKET) {
+		printf("\n\nGOT AK FROM DAN\n\n");
 		add_packetnode(packet);
                 delete_packetnode(packet);
+		print_all();
 	}
 	return ;
 }
