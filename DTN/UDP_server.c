@@ -109,8 +109,8 @@ char hostbuf[256];
 		
 	my_ip[0]=atoi(my_ip[0]);
 	my_ip[1]=atoi(my_ip[1]);
-	my_ip[2]=atoi(my_ip[2]);
-	my_ip[3]=atoi(my_ip[3]);
+my_ip[2]=atoi(my_ip[2]);
+my_ip[3]=atoi(my_ip[3]);
 	printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
     //    printf("Hostname: %s Host IP: %s\n", hostbuf, my_ip);
 
@@ -169,7 +169,7 @@ void *waitForPacket() {
 			
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 	  		
-			if(memcmp(packet1->source,my_ip,4)!=0)
+			if(packet1->source[0]!=(my_ip[0]-256)||packet1->source[1]!=(my_ip[1]-256)||packet1->source[2]!=my_ip[2]||packet1->source[3]!=my_ip[3])
 			{	//printf("\n\n\n%s\n\n\n",my_ip);
 				printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
 	          	printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
@@ -232,21 +232,23 @@ void send_beacon() {
 	packet.seq_num = 0;
 	packet .ttl = 2;
 	sprintf(packet.data,"Beacon\n");
-	printf("%d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
-	/*packet.source[0] = my_ip[0];
-	packet.source[1] = my_ip[1];
-	packet.source[2] = my_ip[2];
-	packet.source[3] = my_ip[3];
-	*/	
-	memcpy(packet.source,my_ip,4);
-	/*memcpy(packet.source[1],my_ip[1],1);
-	memcpy(packet.source[2],my_ip[2],1);
-	memcpy(packet.source[3],my_ip[3],1);*/
+	printf("%s\n",packet.data);
+	printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);	
+	packet.source[0]=my_ip[0];
+	packet.source[1]=my_ip[1];
+	packet.source[2]=my_ip[2];
+	packet.source[3]=my_ip[3];
 	printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
 	char dest[4]={192,168,1,124};
 	sendPackets(&packet,"192.168.1.255");
-	newPacket(my_ip,dest);
+	char ipp[4];
+	ipp[0] = (int)my_ip[0];
+	ipp[1] = (int)my_ip[1];
+	ipp[2] = (int)my_ip[2];
+	ipp[3] = (int)my_ip[3];
+
+	newPacket(ipp,dest);
 }
 
 void data_handler(struct Apacket *packet) {
