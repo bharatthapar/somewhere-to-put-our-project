@@ -26,7 +26,7 @@
 int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
-char *my_ip[8],*temp;
+char *my_ip[4],*temp;
 
 void get_my_ip() {
 	/* int fd;
@@ -97,7 +97,7 @@ char hostbuf[256];
         }
 	int i =0;
 	printf("%s\n",temp);
-	my_ip[0] = (char)strtok(temp,".");
+	my_ip[0] = (char*)strtok(temp,".");
 		
 		while (my_ip[i])
 	 	{
@@ -107,7 +107,11 @@ char hostbuf[256];
 			printf("%s.....",my_ip[i]);
 	  	}
 		
-	printf("IP is %d",my_ip);
+	my_ip[0]=atoi(my_ip[0]);
+	my_ip[1]=atoi(my_ip[1]);
+	my_ip[2]=atoi(my_ip[2]);
+	my_ip[3]=atoi(my_ip[3]);
+	printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
     //    printf("Hostname: %s Host IP: %s\n", hostbuf, my_ip);
 
 
@@ -228,8 +232,17 @@ void send_beacon() {
 	packet.seq_num = 0;
 	packet .ttl = 2;
 	sprintf(packet.data,"Beacon\n");
-	printf("%s\n",packet.data);
+	printf("%d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
+	/*packet.source[0] = my_ip[0];
+	packet.source[1] = my_ip[1];
+	packet.source[2] = my_ip[2];
+	packet.source[3] = my_ip[3];
+	*/	
 	memcpy(packet.source,my_ip,4);
+	/*memcpy(packet.source[1],my_ip[1],1);
+	memcpy(packet.source[2],my_ip[2],1);
+	memcpy(packet.source[3],my_ip[3],1);*/
+	printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
 	char dest[4]={192,168,1,124};
 	sendPackets(&packet,"192.168.1.255");
@@ -241,7 +254,7 @@ void data_handler(struct Apacket *packet) {
 	struct Apacket *ack;
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		if(!memcmp(packet->dest,my_ip,4))	//The received packet is destined for me.
-		{		
+		{	printf("Hello Hello");	
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
 			add_packetnode(ack);
