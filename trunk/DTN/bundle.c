@@ -34,7 +34,7 @@ void newPacket(char * dest, char * data, int len) {
 	add_packetnode(p);
 }
 
-int main() {
+int main(int argv, char * args[]) {
 	initialize();
 	printf("My IP is ");
 	printIP(ipp);
