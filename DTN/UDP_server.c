@@ -27,7 +27,7 @@ int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
 char *my_ip[4],*temp;
-
+char ipp[4];
 void get_my_ip() {
 	/* int fd;
 	int a,b,c,d;
@@ -112,6 +112,13 @@ char hostbuf[256];
 my_ip[2]=atoi(my_ip[2]);
 my_ip[3]=atoi(my_ip[3]);
 	printf("IP is %d.%d.%d.%d",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
+	
+	
+	ipp[0] = (int)my_ip[0];
+	ipp[1] = (int)my_ip[1];
+	ipp[2] = (int)my_ip[2];
+	ipp[3] = (int)my_ip[3];
+
     //    printf("Hostname: %s Host IP: %s\n", hostbuf, my_ip);
 
 
@@ -242,12 +249,7 @@ void send_beacon() {
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
 	char dest[4]={192,168,1,124};
 	sendPackets(&packet,"192.168.1.255");
-	char ipp[4];
-	ipp[0] = (int)my_ip[0];
-	ipp[1] = (int)my_ip[1];
-	ipp[2] = (int)my_ip[2];
-	ipp[3] = (int)my_ip[3];
-
+	
 	newPacket(ipp,dest);
 }
 
@@ -255,7 +257,7 @@ void data_handler(struct Apacket *packet) {
 	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
 	struct Apacket *ack;
 	if(isOld(packet)==NOT_OLD_PACKET) {
-		if(!memcmp(packet->dest,my_ip,4))	//The received packet is destined for me.
+		if(!memcmp(packet->dest,ipp,4))	//The received packet is destined for me.
 		{	printf("Hello Hello");	
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
