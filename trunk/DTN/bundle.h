@@ -4,6 +4,6 @@
 #include "packet.h"
 
 packet * deliverPacket(packet * p);
-void newPacket(char * source, char * dest);
+void newPacket(char * dest, char * data, int len);
 
 #endif

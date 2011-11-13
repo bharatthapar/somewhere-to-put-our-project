@@ -2,7 +2,7 @@
 #define UDP_SERVER_H
 
 #include<inttypes.h>
-
+char ipp[4];
 int initialize(); 
 void send_beacon();
 void data_handler();

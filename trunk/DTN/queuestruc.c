@@ -9,44 +9,47 @@
 queue *root,*head;
 int lock = 1;
 void add_packetnode(packet *p1) {
-	printf("hereee\n");
+	
 	while(!lock);
 	lock = 0;
 	int dup=0;
 	queue *node,*head3,*last;
 	if(root==NULL) {
 		node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
+		//printf("allocate %d\n", node);
 		node->p=p1;
 		node->next=NULL;
 		root=node;
 		head=root;
 	} else {
-		head3=head;
+		head3=root;
 		while(head3!=NULL) {
 
 			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num && p1->type==(head3->p)->type ) {
-				//printf("IP in duplicate is %d.%d.%d.%d\n\n",p1->source[0],p1->source[1],p1->source[2],p1->source[3]);	
-				//printf("%d\n%d\n",p1->type,(head3->p)->type);
-				//printf("Seq num is %d\n",p1->seq_num);
-				//printf("Duplicate Packet.. won't add it to queue\n");
+				////printf("IP in duplicate is %d.%d.%d.%d\n\n",p1->source[0],p1->source[1],p1->source[2],p1->source[3]);	
+				////printf("%d\n%d\n",p1->type,(head3->p)->type);
+				////printf("Seq num is %d\n",p1->seq_num);
+				////printf("Duplicate Packet.. won't add it to queue\n");
 				dup=1;
 				break;
 			}
-		last=head3;printf("hereee\n");
-		head3=head3->next;printf("hereee\n");
+		last=head3;
+		head3=head3->next;
 		}
 		if(dup!=1) {
 			node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
+			//printf("allocate %d\n", node);
 			node->p=p1;
 			node->next=NULL;
 			last->next=node;
 			last=node;
-			//printf("added packet to queue\n");
-			if(p1->type == TYPE_ACK)
-				printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
+			////printf("added packet to queue\n");
+			//if(p1->type == TYPE_ACK)
+				//printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
 		}
 	}
-	printf("");
+	
+	//printf("");
 	lock = 1;
 }
 
@@ -55,10 +58,13 @@ void printIP(char * ip) {
 }
 
 void print_all() {
+	return;
+	while(!lock);
+	lock = 0;
 	queue *head3;
 	int i=0;
 	head3=root;
-	printf("Printing packets in the queue:\n");
+	//printf("Printing packets in the queue:\n");
 	while(head3!=NULL) {
 		printf("----Packet-----\n");
 		printf("type: %d\n",head3->p->type);
@@ -75,7 +81,8 @@ void print_all() {
 		head3=head3->next;
 		i++;
 	}
-	printf("Queue ends\n");
+	//printf("Queue ends\n");
+	lock=1;
 }
 
 
@@ -87,7 +94,7 @@ void send_all(char *serverip) {
 	queue *head2;
 
 	if(root==NULL) {
-		printf("No packets in queue right now. Aborted send packets operation\n");
+		//printf("No packets in queue right now. Aborted send packets operation\n");
 		//return -1;
 	}
 
@@ -108,7 +115,7 @@ packet *p2;
 
 if(root==NULL)
 {
-printf("No packets in queue right now. Aborted send packet node operation");
+//printf("No packets in queue right now. Aborted send packet node operation");
 }
 
 else
@@ -134,7 +141,7 @@ void delete_packetnode(packet *p1) {
 	packet *p2;
 	int result;
 	if(root==NULL) {
-		printf("No packets in queue right now. Aborted delete node operation");
+		//printf("No packets in queue right now. Aborted delete node operation");
 	} else {
 		head2=root;
 		prev = NULL;
@@ -142,7 +149,7 @@ void delete_packetnode(packet *p1) {
 		while(head2!=NULL) {
 			p2=head2->p;
 			if(keepPacket(p1,p2)==DELETE_PACKET) {
-				printf("DELETE!!\n");
+				//printf("DELETE!!\n");
 				if (prev == NULL) {
 					root = head2->next;
 				} else {
@@ -150,7 +157,8 @@ void delete_packetnode(packet *p1) {
 				}
 				temp=head2;
 				head2=head2->next;
-				//free(temp->p);
+				free(temp->p);
+				//printf("free %d\n", temp);
 				free(temp);
 				
 			} else {
@@ -161,10 +169,10 @@ void delete_packetnode(packet *p1) {
 				
 			
 		}
-		if(prev!=NULL)
-			prev->next = NULL;
-		else
-			if(root!=NULL)root->next = NULL;
+		//if(prev!=NULL)
+		//	prev->next = NULL;
+		//else
+		//	if(root!=NULL)root->next = NULL;
 	}
 	lock = 1;
 }
