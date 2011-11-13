@@ -32,12 +32,13 @@ void add_packetnode(packet *p1) {
 		last=head3;
 		head3=head3->next;
 		}
-		if(dup!=1) {
+		if(dup!=1 && p1->type!=TYPE_BEACON ) {
 			node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
 			node->p=p1;
 			node->next=NULL;
 			last->next=node;
 			last=node;
+			printf("adding packet of data %s and type%d and Seq num %d to queue \n",p1->data,p1->type,p1->seq_num);
 			printf("added packet to queue\n");
 			if(p1->type == TYPE_ACK)
 				printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
@@ -86,7 +87,7 @@ void send_all(char *serverip) {
 	}
 
 	head2=root;
-	while(head2!=NULL) {
+	while(head2!=NULL) {printf("
 		sendPackets((head2->p), serverip);
 		head2=head2->next;
 	}
