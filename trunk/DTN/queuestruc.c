@@ -21,7 +21,7 @@ void add_packetnode(packet *p1) {
 		head3=head;
 		while(head3!=NULL) {
 
-			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num) {
+			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num && p1->type==(head3->p)->type ) {
 				printf("IP in duplicate is %d.%d.%d.%d\n\n",p1->source[0],p1->source[1],p1->source[2],p1->source[3]);	
 				printf("%d\n%d\n",p1->type,(head3->p)->type);
 				printf("Seq num is %d\n",p1->seq_num);
