@@ -87,7 +87,8 @@ void send_all(char *serverip) {
 	}
 
 	head2=root;
-	while(head2!=NULL) {printf("
+	while(head2!=NULL) {
+                printf("dedana:%s %d",head2->p->data, head->p->type);
 		sendPackets((head2->p), serverip);
 		head2=head2->next;
 	}
