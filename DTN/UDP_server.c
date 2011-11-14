@@ -205,7 +205,7 @@ void send_beacon() {
 	struct Apacket packet;
 	packet.type = 1;
 	packet.seq_num = 0;
-	packet .ttl = 2;
+	packet .ttl = 50;
 	sprintf(packet.data,"Beacon\n");
 	packet.source[0]=ipp[0];
 	packet.source[1]=ipp[1];
