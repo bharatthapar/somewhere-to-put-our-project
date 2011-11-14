@@ -19,6 +19,7 @@ void add_packetnode(packet *p1) {
 		//printf("allocate %d\n", node);
 		node->p=p1;
 		node->next=NULL;
+		node->marked = 0;
 		root=node;
 		head=root;
 		node->time_in = time(NULL);
@@ -28,10 +29,6 @@ void add_packetnode(packet *p1) {
 		while(head3!=NULL) {
 
 			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num && p1->type==(head3->p)->type ) {
-				////printf("IP in duplicate is %d.%d.%d.%d\n\n",p1->source[0],p1->source[1],p1->source[2],p1->source[3]);	
-				////printf("%d\n%d\n",p1->type,(head3->p)->type);
-				////printf("Seq num is %d\n",p1->seq_num);
-				////printf("Duplicate Packet.. won't add it to queue\n");
 				dup=1;
 				break;
 			}
@@ -40,16 +37,13 @@ void add_packetnode(packet *p1) {
 		}
 		if(dup!=1) {
 			node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
-			//printf("allocate %d\n", node);
 			node->p=p1;
 			node->next=NULL;
+			node->marked = 0;
 			last->next=node;
 			last=node;
 			node->time_in = time(NULL);
 			printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
-			////printf("added packet to queue\n");
-			//if(p1->type == TYPE_ACK)
-				//printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
 		}
 	}
 	
@@ -101,7 +95,7 @@ void send_all(char *serverip) {
 		//printf("No packets in queue right now. Aborted send packets operation\n");
 		//return -1;
 	}
-
+	queue *prev=NULL;
 	head2=root;
 	while(head2!=NULL) {
 		time_current = time(NULL);
@@ -116,13 +110,11 @@ void send_all(char *serverip) {
 		}	
 		else
 		{
+			head2->marked = 1;
 			printf("Not sending packet and going to delete it :p\n");
-			printf("Diff in time is %d\n",time_current - head2->time_in);
-			//head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
-			printf("TTL for packet NOTTTTTTTTTTT being sent is %d\n",head2->p->ttl);
-					
-			//delete_packetnode(head2->p);
+			
 		}
+
 		head2=head2->next;
 	}
 	lock = 1;
@@ -170,7 +162,7 @@ void delete_packetnode(packet *p1) {
 		
 		while(head2!=NULL) {
 			p2=head2->p;
-			if(keepPacket(p1,p2)==DELETE_PACKET) {
+			if((keepPacket(p1,p2)==DELETE_PACKET)||(head2->marked == 1)) {
 				//printf("DELETE!!\n");
 				if (prev == NULL) {
 					root = head2->next;
