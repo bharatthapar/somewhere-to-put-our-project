@@ -145,8 +145,6 @@ int initialize() {
 
 
 void *waitForPacket() {
-		struct Apacket *packet1;
-		packet1 = malloc(sizeof(packet));
 		int listen_sock;
 		int bytes_read;		
 		char recv_data[1024];
@@ -162,27 +160,31 @@ void *waitForPacket() {
 	        fflush(stdout);
 		while(1) {
 			
-			
+			struct Apacket *packet1;
+			packet1 = (packet *)malloc(sizeof(packet));
+		
 			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
 
 			if(memcmp(packet1->source, ipp, 4))
-			{	////printf("\n\n\n%s\n\n\n",my_ip);
-				////printf("\n\n%d.%d.%d.%d\n\n",packet1->source[0],packet1->source[1],packet1->source[2],packet1->source[3]);
-	          //	//printf("\n(%s , %d) said : ",inet_ntoa(client_addr.sin_addr),ntohs(client_addr.sin_port));
-	          //	//printf("\n%s\n", packet1->data);
-				//printf("GOT PACKET\n");
+			{	
 			if(packet1->type == TYPE_BEACON) {
 				////printf("Received beacon from %s, sending all packets\n",inet_ntoa(client_addr.sin_addr));
 				send_all(inet_ntoa(client_addr.sin_addr));
+				memset(packet1,NULL,sizeof(packet));
+				free(packet1);
 			}
 			else if(packet1->type == TYPE_DATA) {
+				printf("Received DATA with ttl %d\n",packet1->ttl);
 				data_handler(packet1);
 			}
 			else if(packet1->type == TYPE_ACK) {
+				printf("Received ACK with ttl %d\n",packet1->ttl);
 				ack_handler(packet1);
 			}
 			}
 		  	fflush(stdout);
+			
+			//free(packet1);
 		}
 }
 
