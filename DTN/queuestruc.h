@@ -10,6 +10,7 @@ typedef struct dataqueue {
 	packet *p;
 	struct dataqueue *next;
 	time_t time_in;
+	int marked;
 } queue;
 
 

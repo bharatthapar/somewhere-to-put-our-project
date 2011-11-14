@@ -11,7 +11,7 @@ packet * deliverPacket(packet * p) {
 	memcpy(ack->dest, p->source, 4);
 	memcpy(ack->source, p->dest, 4);
 	ack->type = TYPE_ACK;
-	ack->ttl = 200;
+	ack->ttl = 20;
 	sprintf(ack->data, "ACK");
 	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
 	ack->seq_num = p->seq_num;
@@ -27,7 +27,7 @@ void newPacket(char * dest, char * data, int len) {
 	memcpy(p->dest, dest, 4);
 	memcpy(p->source, ipp, 4);
 	memcpy(p->data, data, len);
-	p->ttl = 200;
+	p->ttl = 20;
 	p->length = sizeof(packet) - MAX_FRAME_SIZE + len;
 	addSequenceNumber(p);
 	add_packetnode(p);
