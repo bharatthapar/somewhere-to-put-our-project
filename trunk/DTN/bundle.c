@@ -4,7 +4,7 @@
 #include "UDP_server.h"
 #include "sequence.h"
 #include <stdio.h>
-
+#include <string.h>
 packet * deliverPacket(packet * p) {
 	packet * ack = malloc(sizeof(packet));
 	memcpy(ack->dest, p->source, 4);
