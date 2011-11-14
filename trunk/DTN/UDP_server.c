@@ -213,7 +213,7 @@ void ack_handler(struct Apacket *packet) {
 	/*Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return0*/
 
 	if(isOld(packet)==NOT_OLD_PACKET) {
-		if(memcmp(packet->dest,my_ip,4)!=0)
+		if(memcmp(packet->dest,ipp,4)!=0)
 		{
 				printf("ACK IS NOT FOR ME");
 				add_packetnode(packet);
