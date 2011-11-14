@@ -109,7 +109,8 @@ void send_all(char *serverip) {
 		{
 			printf("Will send packet as ttl is greater\n");
 			printf("Diff in time is %d\n",time_current - head2->time_in);
-			head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
+			head2->p->ttl -=(time_current - head2->time_in);
+			head2->time_in = time(NULL);
 			printf("TTL for packet being sent is %d\n",head2->p->ttl);
 			sendPackets((head2->p), serverip);
 		}	
