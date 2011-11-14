@@ -10,6 +10,7 @@ packet * deliverPacket(packet * p) {
 	memcpy(ack->dest, p->source, 4);
 	memcpy(ack->source, p->dest, 4);
 	ack->type = TYPE_ACK;
+	ack->ttl = 50;
 	sprintf(ack->data, "ACK");
 	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
 	ack->seq_num = p->seq_num;
@@ -28,6 +29,7 @@ void newPacket(char * dest, char * data, int len) {
 	memcpy(p->dest, dest, 4);
 	memcpy(p->source, ipp, 4);
 	memcpy(p->data, data, len);
+	p->ttl = 50;
 	p->length = sizeof(packet) - MAX_FRAME_SIZE + len;
 	addSequenceNumber(p);
 	//printf("Seq num %d\n", p->seq_num);
@@ -59,8 +61,8 @@ int main(int argv, char * args[]) {
 		//printf("%s..%s..%s..%s\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
 	ip[0]=atoi(my_ip[0]);
 	ip[1]=atoi(my_ip[1]);
-ip[2]=atoi(my_ip[2]);
-ip[3]=atoi(my_ip[3]);
+	ip[2]=atoi(my_ip[2]);
+	ip[3]=atoi(my_ip[3]);
 	//printf("IP is %d.%d.%d.%d",ip[0],ip[1],ip[2],ip[3]);
 	
 	gets(buf);

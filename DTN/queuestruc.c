@@ -21,6 +21,8 @@ void add_packetnode(packet *p1) {
 		node->next=NULL;
 		root=node;
 		head=root;
+		node->time_in = time(NULL);
+		printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 	} else {
 		head3=root;
 		while(head3!=NULL) {
@@ -43,6 +45,8 @@ void add_packetnode(packet *p1) {
 			node->next=NULL;
 			last->next=node;
 			last=node;
+			node->time_in = time(NULL);
+			printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 			////printf("added packet to queue\n");
 			//if(p1->type == TYPE_ACK)
 				//printf("\n\n\n\n\n\nADDED ACK TO QUEUE\n\n\n\n\n\n\n");
@@ -100,7 +104,24 @@ void send_all(char *serverip) {
 
 	head2=root;
 	while(head2!=NULL) {
-		sendPackets((head2->p), serverip);
+		time_current = time(NULL);
+		if(time_current - (head2->time_in) < (head2->p)->ttl) 
+		{
+			printf("Will send packet as ttl is greater\n");
+			printf("Diff in time is %d\n",time_current - head2->time_in);
+			head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
+			printf("TTL for packet being sent is %d\n",head2->p->ttl);
+			sendPackets((head2->p), serverip);
+		}	
+		else
+		{
+			printf("Not sending packet and going to delete it :p\n");
+			printf("Diff in time is %d\n",time_current - head2->time_in);
+			head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
+			printf("TTL for packet NOTTTTTTTTTTT being sent is %d\n",head2->p->ttl);
+					
+			//delete_packetnode(head2->p);
+		}
 		head2=head2->next;
 	}
 	lock = 1;

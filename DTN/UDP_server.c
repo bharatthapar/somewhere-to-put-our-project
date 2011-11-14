@@ -52,49 +52,7 @@ void * oldMain() {
 }
 
 void get_my_ip() {
-	/* int fd;
-	int a,b,c,d;
-	 struct ifreq ifr;
-
-	 fd = socket(AF_INET, SOCK_DGRAM, 0);
-*/
-	 /* I want to get an IPv4 IP address */
-//	 ifr.ifr_addr.sa_family = AF_INET;
-
-	 /* I want IP address attached to "eth0" */
-//	 strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
-	
-//	 ioctl(fd, SIOCGIFADDR, &ifr);
-	
-//	 close(fd);
-//	 char *temp=inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-	////printf("\n\n\n%s\n\n\n",my_ip);
-	//strcpy(my_ip,temp);
-//	sscanf(temp,my_ip
-	//inet_aton(temp,(struct in_addr*)my_ip); 
-/*	sscanf(temp,"%u.%u.%u.%u",&a,&b,&c,&d);
-	
-
-	my_ip[0] = a+256;
-	my_ip[1] = b;
-	my_ip[2] = c;
-	my_ip[3] = d;
-
-
-
-	if (my_ip[0]<-1)
-		my_ip[0]=my_ip[0]+256;
-	if (my_ip[1]<0)
-		my_ip[1]=my_ip[1]+256;
-	if (my_ip[2]<0)
-		my_ip[2]=my_ip[2]+256;
-	if (my_ip[3]<0)
-		my_ip[3]=my_ip[3]+256;
-
-//printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);
-*/
-char hostbuf[256];
-       // char * ipbuf;
+	char hostbuf[256];
         struct hostent *hostentry;
         int ret;
 
@@ -243,21 +201,17 @@ void sendPackets(struct Apacket *packet, char *ip) {
 
 
 void send_beacon() {
-	////printf("Im in\n");
+	//printf("Im in\n");
 	struct Apacket packet;
 	packet.type = 1;
 	packet.seq_num = 0;
 	packet .ttl = 2;
 	sprintf(packet.data,"Beacon\n");
-	////printf("%s\n",packet.data);
-	////printf("IP is %d.%d.%d.%d\n",my_ip[0],my_ip[1],my_ip[2],my_ip[3]);	
 	packet.source[0]=ipp[0];
 	packet.source[1]=ipp[1];
 	packet.source[2]=ipp[2];
 	packet.source[3]=ipp[3];
-	////printf("%d.%d.%d.%d\n",packet.source[0]+256,packet.source[1]+256,packet.source[2],packet.source[3]);
 	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
-	char dest[4]={192,168,1,105};
 	sendPackets(&packet,"192.168.1.255");
 }
 

@@ -3,10 +3,13 @@
 
 #include "packet.h"
 #include <inttypes.h>
+#include<time.h>
+time_t time_current;
 
 typedef struct dataqueue {
 	packet *p;
 	struct dataqueue *next;
+	time_t time_in;
 } queue;
 
 
