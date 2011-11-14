@@ -202,17 +202,18 @@ void sendPackets(struct Apacket *packet, char *ip) {
 
 void send_beacon() {
 	//printf("Im in\n");
-	struct Apacket packet;
-	packet.type = 1;
-	packet.seq_num = 0;
-	packet .ttl = 50;
-	sprintf(packet.data,"Beacon\n");
-	packet.source[0]=ipp[0];
-	packet.source[1]=ipp[1];
-	packet.source[2]=ipp[2];
-	packet.source[3]=ipp[3];
-	packet.length = sizeof(packet)-MAX_FRAME_SIZE+strlen(packet.data);
-	sendPackets(&packet,"192.168.1.255");
+	struct Apacket *packet = (struct Apacket *)malloc(sizeof(struct Apacket));
+	packet->type = 1;
+	packet->seq_num = 0;
+	//packet .ttl = 2;
+	sprintf(packet->data,"Beacon\n");
+	packet->source[0]=ipp[0];
+	packet->source[1]=ipp[1];
+	packet->source[2]=ipp[2];
+	packet->source[3]=ipp[3];
+	packet->length = sizeof(struct Apacket)-MAX_FRAME_SIZE+strlen(packet->data);
+	sendPackets(packet,"192.168.1.255");
+	free(packet);
 }
 
 void data_handler(struct Apacket *packet) {
