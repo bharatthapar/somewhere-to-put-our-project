@@ -118,7 +118,7 @@ void send_all(char *serverip) {
 		{
 			printf("Not sending packet and going to delete it :p\n");
 			printf("Diff in time is %d\n",time_current - head2->time_in);
-			head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
+			//head2->p->ttl = (head2->p->ttl)-time_current + head2->time_in;
 			printf("TTL for packet NOTTTTTTTTTTT being sent is %d\n",head2->p->ttl);
 					
 			//delete_packetnode(head2->p);
