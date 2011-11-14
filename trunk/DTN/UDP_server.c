@@ -51,9 +51,9 @@ void * oldMain() {
 	return 0;
 }
 
-void get_my_ip() {
+void get_my_ip(char interface[]) {
 	char hostbuf[256];
-        struct hostent *hostentry;
+        /*struct hostent *hostentry;
         int ret;
         ret = gethostname(hostbuf,sizeof(hostbuf));
         if(-1 == ret)
@@ -69,9 +69,17 @@ void get_my_ip() {
                 perror("gethostbyname");
                 exit(1);
         }
-	
-        temp = inet_ntoa(*((struct in_addr *)hostentry->h_addr_list[0]));
+	*/
 
+	struct ifreq ifr;
+	int fd;
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	ifr.ifr_addr.sa_family = AF_INET;	
+	strcpy(ifr.ifr_name, interface);
+	ioctl(fd, SIOCGIFADDR, &ifr);
+	close(fd);
+
+        temp = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);	
         if(NULL == my_ip)
 	{
                 perror("inet_ntoa");
@@ -94,12 +102,12 @@ void get_my_ip() {
 
 
 
-int initialize() {
+int initialize(char interface[]) {
 		struct in_addr a;
 		char host[100];
 		gethostname(host,sizeof(host));	
 		struct hostent *name=gethostbyname(host);
-		get_my_ip();
+		get_my_ip(interface);
 		MainSocket = socket(AF_INET,SOCK_DGRAM,0);
 		if(MainSocket == -1) {
 			perror("Socket");

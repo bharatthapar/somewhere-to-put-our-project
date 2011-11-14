@@ -34,7 +34,11 @@ void newPacket(char * dest, char * data, int len) {
 }
 
 int main(int argv, char * args[]) {
-	initialize();
+	char *interface = malloc(sizeof(args[1])+1);
+	strcpy(interface,args[1]);
+	printf("Interface is %s\n",interface);
+	
+	initialize(interface);
 	printf("My IP is ");
 	printIP(ipp);
 	printf("\n");
