@@ -9,4 +9,5 @@ void data_handler();
 void ack_handler();
 void *waitForPacket();
 void sendPackets(struct Apacket *packet, char *ip);
+void setGateway(char * network, char * netMask);
 #endif

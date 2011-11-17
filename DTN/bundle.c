@@ -5,7 +5,8 @@
 #include "sequence.h"
 #include <stdio.h>
 #include <string.h>
-
+#include "tunnel.h"
+int dtn0;
 packet * deliverPacket(packet * p) {
 	packet * ack = malloc(sizeof(packet));
 	memcpy(ack->dest, p->source, 4);
@@ -16,8 +17,9 @@ packet * deliverPacket(packet * p) {
 	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
 	ack->seq_num = p->seq_num;
 	isOld(ack);
-	p->data[MAX_FRAME_SIZE - 1] = '\0';
-	printf("GOT THIS MESSAGE: %s\n", p->data);
+	sendPacket(dtn0, p);
+	//free packets
+	free(p);
 	return ack;
 }
 
@@ -33,36 +35,57 @@ void newPacket(char * dest, char * data, int len) {
 	add_packetnode(p);
 }
 
+
+
 int main(int argv, char * args[]) {
+	if (! strcmp(args[1],"1")) {
+		printf("GATEWAY!!!\n");
+		char ip[4];
+		char mask[4] = {255,255,255,255};
+		char * my_ip[5];
+		int i =0, j=0;
+		sscanf(args[2], "%d.%d.%d.%d/%d", &ip[0], &ip[1], &ip[2], &ip[3], &i);
+		//sscanf(args[3], "%d.%d.%d.%d", &mask[0], &mask[1], &mask[2], &mask[3]);
+		
+		while (i > 8) {
+			mask[j] = 255;
+			i = i - 8;
+			j++;
+		}
+		mask[j] = mask[j] << (8-i);
+		for (j=j+1; j < 4; j++)
+			mask[j] = 0;
+		printIP(ip);
+		printf("\n");
+		printIP(mask);
+		printf("\n");		
+		setGateway(ip, mask);
+		
+		//exit(0);
+	}
+
 	char *interface = malloc(sizeof(args[1])+1);
-	strcpy(interface,args[1]);
-	printf("Interface is %s\n",interface);
+	//strcpy(interface,args[1]);
+	//printf("Interface is %s\n",interface);
 	
-	initialize(interface);
+	dtn0 = tun_init("dtn0");
+	char ipbuf[200] = "ifconfig dtn0 ";
+	
+	strcat(ipbuf, args[2]);
+	strcat(ipbuf, " up");
+	
+	system(ipbuf);
+
+	//initialize(interface);
+	initialize("dtn0");
 	printf("My IP is ");
 	printIP(ipp);
 	printf("\n");
-	char buf[1000];
-	int i;
-	char ip[4];
-	while(1) {
-		gets(buf);
-		char * my_ip[5];
-		my_ip[0] = (char*)strtok(buf,".");
-		i=0;
-		while (my_ip[i])
-	 	{
-			 i++;
-	  		 my_ip[i] = strtok (NULL, ".");
-	  	}
-		ip[0]=atoi(my_ip[0]);
-		ip[1]=atoi(my_ip[1]);
-		ip[2]=atoi(my_ip[2]);
-		ip[3]=atoi(my_ip[3]);
-		gets(buf);
-		printf("Sending %s to ", buf);
-		printIP(ip);
-		printf("\n");
-		newPacket(ip, buf, strlen(buf)+1);
+  
+	while(1){
+		packet * p = getPacket(dtn0);
+		if (p != NULL) {
+			add_packetnode(p);
+		}
 	}
 }
