@@ -27,7 +27,23 @@ int MainSocket;
 int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
 char *my_ip[5],*temp;
+int gateway = 0;
+char net[4];
+char mask[4];
 
+
+void setGateway(char * ip, char * netMask) {
+	
+	gateway = 1;
+	memcpy(mask, netMask, 4);
+	printf("I am a gateway on the network ");
+	net[0] = ip[0] & mask[0];
+	net[1] = ip[1] & mask[1];
+	net[2] = ip[2] & mask[2];
+	net[3] = ip[3] & mask[3];
+	printIP(net);
+	printf("\n");
+}
 
 void * oldMain() {
 	struct itimerval it_val;	/* for setting itimer */
@@ -161,11 +177,11 @@ void *waitForPacket() {
 				free(packet1);
 			}
 			else if(packet1->type == TYPE_DATA) {
-				printf("Received DATA with ttl %d\n",packet1->ttl);
+				//printf("Received DATA with ttl %d\n",packet1->ttl);
 				data_handler(packet1);
 			}
 			else if(packet1->type == TYPE_ACK) {
-				printf("Received ACK with ttl %d\n",packet1->ttl);
+				//printf("Received ACK with ttl %d\n",packet1->ttl);
 				ack_handler(packet1);
 			}
 			}
@@ -185,6 +201,7 @@ void sendPackets(struct Apacket *packet, char *ip) {
 
 
 void send_beacon() {
+	print_all();
 	struct Apacket *packet = (struct Apacket *)malloc(sizeof(struct Apacket));
 	packet->type = 1;
 	packet->seq_num = 0;
@@ -201,8 +218,21 @@ void send_beacon() {
 void data_handler(struct Apacket *packet) {
 	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
 	struct Apacket *ack;
+	int takePacket = 0;
+		
 	if(isOld(packet)==NOT_OLD_PACKET) {
-		if(!memcmp(packet->dest,ipp,4))	//The received packet is destined for me.
+		takePacket = 0;
+		if (gateway) {
+			char pNet[4];
+			pNet[0] = packet->dest[0] & mask[0];
+			pNet[1] = packet->dest[1] & mask[1];
+			pNet[2] = packet->dest[2] & mask[2];
+			pNet[3] = packet->dest[3] & mask[3];
+			if (pNet[0] != net[0] || pNet[1] != net[1] || pNet[2] != net[2] || pNet[3] != net[3]) {
+				takePacket = 1;
+			}
+		}
+		if(!memcmp(packet->dest,ipp,4) || takePacket==1)//The received packet is destined for me.
 		{	
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
 			isOld(ack);
@@ -223,12 +253,12 @@ void ack_handler(struct Apacket *packet) {
 	if(isOld(packet)==NOT_OLD_PACKET) {
 		if(memcmp(packet->dest,ipp,4)!=0)
 		{
-				printf("ACK IS NOT FOR ME");
+				//printf("ACK IS NOT FOR ME");
 				add_packetnode(packet);
 		}
 		else 
 		{
-			printf("ACK IS FOR ME... NOT ADDING TO LIST\n");
+			//printf("ACK IS FOR ME... NOT ADDING TO LIST\n");
 		}
                 delete_packetnode(packet);
 		print_all();

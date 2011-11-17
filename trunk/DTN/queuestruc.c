@@ -23,7 +23,7 @@ void add_packetnode(packet *p1) {
 		root=node;
 		head=root;
 		node->time_in = time(NULL);
-		printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
+		//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 	} else {
 		head3=root;
 		while(head3!=NULL) {
@@ -43,7 +43,7 @@ void add_packetnode(packet *p1) {
 			last->next=node;
 			last=node;
 			node->time_in = time(NULL);
-			printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
+			//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 		}
 	}
 	
@@ -56,37 +56,73 @@ void printIP(char * ip) {
 }
 
 void print_all() {
-	return;
 	while(!lock);
 	lock = 0;
 	queue *head3;
 	int i=0;
 	head3=root;
+	int data = 0;
+	int ack = 0;
 	//printf("Printing packets in the queue:\n");
 	while(head3!=NULL) {
-		printf("----Packet-----\n");
-		printf("type: %d\n",head3->p->type);
-		printf("source: ");
-		printIP(head3->p->source);
-		printf("\n");
-		printf("dest: ");
-		printIP(head3->p->dest);
-		printf("\n");
-		printf("sequence: %d",head3->p->seq_num);
-		printf(" %s\n",head3->p->data);
-		printf("---End Packet---\n");
+		//printf("----Packet-----\n");
+		//printf("type: %d\n",head3->p->type);
+		//printf("source: ");
+		//printIP(head3->p->source);
+		//printf("\n");
+		//printf("dest: ");
+		//printIP(head3->p->dest);
+		//printf("\n");
+		//printf("sequence: %d",head3->p->seq_num);
+		//printf(" %s\n",head3->p->data);
+		//printf("---End Packet---\n");
+		if (head3->p->type == TYPE_DATA)
+			data++;
+		else if (head3->p->type == TYPE_ACK)
+			ack++;
 		
 		head3=head3->next;
 		i++;
 	}
+	system("clear");
+	printf("My IP is ");
+	printIP(ipp);
+	printf("\n");
+	printf("Number of data packets present: %d\n", data);
+	printf("Number of ACKS present %d\n", ack);
 	//printf("Queue ends\n");
 	lock=1;
 }
 
 
-
+void delete_marked() {
+	queue * prev = NULL;
+	queue * temp;
+	queue * head2 = root;
+	while(head2!=NULL) {
+	//printf("Loop\n");
+		if(head2->marked == 1) {
+			//printf("DELETE!!\n");
+			if (prev == NULL) {
+				root = head2->next;
+			} else {
+				prev->next = head2->next;
+			}
+			temp=head2;
+			head2=head2->next;
+			free(temp->p);
+			//printf("free %d\n", temp);
+			free(temp);
+				
+		} else {
+			prev = head2;
+			head2=head2->next;
+		}
+	}
+}
 
 void send_all(char *serverip) {
+
 	while(!lock);
 	lock = 0;
 	queue *head2;
@@ -101,22 +137,24 @@ void send_all(char *serverip) {
 		time_current = time(NULL);
 		if(time_current - (head2->time_in) < (head2->p)->ttl) 
 		{
-			printf("Will send packet as ttl is greater\n");
-			printf("Diff in time is %d\n",time_current - head2->time_in);
+			//printf("Will send packet as ttl is greater\n");
+			//printf("Diff in time is %d\n",time_current - head2->time_in);
 			head2->p->ttl -=(time_current - head2->time_in);
 			head2->time_in = time(NULL);
-			printf("TTL for packet being sent is %d\n",head2->p->ttl);
+			//printf("TTL for packet being sent is %d\n",head2->p->ttl);
 			sendPackets((head2->p), serverip);
 		}	
 		else
 		{
 			head2->marked = 1;
-			printf("Not sending packet and going to delete it :p\n");
+			//printf("Not sending packet and going to delete it :p\n");
 			
 		}
 
 		head2=head2->next;
 	}
+	
+	delete_marked();
 	lock = 1;
 	//return 0;
 }
@@ -162,27 +200,15 @@ void delete_packetnode(packet *p1) {
 		
 		while(head2!=NULL) {
 			p2=head2->p;
-			if((keepPacket(p1,p2)==DELETE_PACKET)||(head2->marked == 1)) {
+			if((keepPacket(p1,p2)==DELETE_PACKET)) {
 				//printf("DELETE!!\n");
-				if (prev == NULL) {
-					root = head2->next;
-				} else {
-					prev->next = head2->next;
-				}
-				temp=head2;
-				head2=head2->next;
-				free(temp->p);
-				//printf("free %d\n", temp);
-				free(temp);
-				
-			} else {
-				prev = head2;
-				head2=head2->next;
+				head2->marked = 1;
 			}
-			
+			head2 = head2->next;
 				
 			
 		}
+		delete_marked();
 		//if(prev!=NULL)
 		//	prev->next = NULL;
 		//else

@@ -6,10 +6,11 @@
 
 /* Maximum size of data chunk that can be sent in a packet */
 
-#define MAX_FRAME_SIZE		1000
+#define MAX_FRAME_SIZE		1400
 #define TYPE_BEACON			1
 #define TYPE_DATA			2
 #define TYPE_ACK			3
+#define DEFAULT_TTL 		100
 #pragma pack(push, 1)
 
 typedef struct Apacket {
