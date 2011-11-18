@@ -1,0 +1,19 @@
+#Bundle Address
+192.168.7.22
+
+#Bundle Netmask
+255.255.255.0
+
+#Port
+8000
+
+#Broadcast Addresses
+192.168.1.255
+192.168.2.255
+
+#Gateway Mode
+Off
+
+#Packet Life
+100
+
