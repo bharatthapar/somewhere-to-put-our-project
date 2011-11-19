@@ -12,9 +12,8 @@ sequence.o: sequence.c
 bundle.o: bundle.c
 	gcc -c -w bundle.c
 data_Queue.o: data_Queue.c
-        gcc -c -w data_Queue.c
+	gcc -c -w data_Queue.c
 api.o: api.c
 	gcc -c -w api.c	
-
 clean:
 	rm -rf *o final
