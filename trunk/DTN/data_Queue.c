@@ -2,11 +2,18 @@
 
 
 
-struct data_Queue *root;
+struct data_Queue *root = NULL;
 int lock1=1;
 void add_datapacketnode(packet *p1) {
 	while(!lock1);
 	lock1 = 0;
+	printf("ITS from ");
+	printIP(p1->source);
+	printf("\n");
+	printf("ITS TO ");
+	printIP(p1->dest);
+	printf("\n");	
+	printf("Size : %d\n", p1->length - sizeof(packet) + MAX_FRAME_SIZE);
 
 	int dup=0;
 	struct data_Queue *node,*head3,*last;
@@ -17,9 +24,11 @@ void add_datapacketnode(packet *p1) {
 		node->next=NULL;
 		node->marked = 0;
 		root=node;
+		printf("FGSDFDSFSD\n");
 		//node->time_in = time(NULL);
 		//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 	} else {
+	printf("aaaaaaFGSDFDSFSD\n");
 		head3=root;
 		while(head3!=NULL) {
 			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num && p1->type==(head3->p)->type ) {
@@ -48,12 +57,27 @@ void add_datapacketnode(packet *p1) {
 
 int chk_seq(packet *p){
 	printf("SEQ2: %d\n", p->seq_num);
+	printf("SRC: ");
+	printIP(p->source);
+	printf("\n");
+	printf("DST: ");
+	printIP(p->dest);
+	printf("\n");
+	
 	while(!lock1);
 	lock1 = 0;
+	
+	
 	int high=0;
 	struct data_Queue *temp=root;
 	while(temp!=NULL){
 		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->p->dest,4)==0)){
+			printf("SRC: ");
+	printIP(temp->p->source);
+	printf("\n");
+	printf("DST: ");
+	printIP(temp->p->dest);
+	printf("\n");
 			if(temp->p->seq_num > high)
 				high=temp->p->seq_num;	
 		}
@@ -94,7 +118,7 @@ void deletenode(struct data_Queue *stop) {
 				head2=head2->next;
 				//free(temp->p);
 				//printf("free %d\n", temp);
-				free(temp);
+				//free(temp);
 				
 			} else {
 				prev = head2;
@@ -106,7 +130,8 @@ void deletenode(struct data_Queue *stop) {
 }
 
 packet * getOldestPacket(char * srcip) {
-
+while(!lock1);
+lock1=0;
 data_Queue *headnew,*headnew1,*nodenew;
 packet *pnew;
 headnew=root;
@@ -114,19 +139,24 @@ int flag=0,length1;
 
 		if(headnew==NULL) 
 		{
-		printf("There is nothing in the master queue\n");
-		exit(1);
+		//printf("There is nothing in the master queue\n");
+		//exit(1);
+		lock1 = 1;
+		
+		return NULL;
 		} 
 else
 {
 
 	while(headnew!=NULL)
-	{
+	{ 
 		if(memcmp((headnew->p)->source,srcip,4)==0 && headnew->marked == 0) 
 		{
 			nodenew=headnew;
 			nodenew->marked=1;
-			deletenode(nodenew);
+			lock1=1;
+			//deletenode(nodenew);
+			
 			return nodenew->p;
 			flag=1;
 		}
@@ -135,22 +165,12 @@ else
 
 	if(flag==1)
 	nodenew->marked=1;
-	if(flag==0)
-	printf("There is no packet from the srcip inputted in the master queue\n");
-
+	//if(flag==0)
+	//printf("There is no packet from the srcip inputted in the master queue\n");
+	lock1=1;
 	return NULL;
 	
-	headnew1=root;
-	while(headnew1!=NULL)
-	{
-		if(memcmp((headnew1->p)->source,srcip,4)==0 && headnew1->marked==1) 
-		{
-			deletenode(headnew1->p);
-			break;
-		}
 
-		headnew1=headnew1->next;
-	}
 
 
 }

@@ -7,6 +7,7 @@
 #include <string.h>
 #include "tunnel.h"
 #include "dataQueue.h"
+
 int dtn0;
 
 packet * deliverPacket(packet * p) {
@@ -16,6 +17,7 @@ packet * deliverPacket(packet * p) {
 	int seq = chk_seq(p);
 	if(seq == 0 || seq == p->seq_num-1)
 	{
+	
 		add_datapacketnode(p);
 		ack = malloc(sizeof(packet));
 		memcpy(ack->dest, p->source, 4);
@@ -28,6 +30,7 @@ packet * deliverPacket(packet * p) {
 		isOld(ack);
 		//free packets
 		//free(p);
+		
 		return ack;
 	}
 	else
@@ -37,11 +40,11 @@ packet * deliverPacket(packet * p) {
 
 
 void newPacket(char * dest, char * data, int len) {
-	//if (len == 10)
-	//printf("New packet (len: %d) (data %c%c%c%c%c%c%c%c%c%c)\n", len, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]);
-	//else
-	//printf("New packet (len: %d) (data %c%c)\n", len, data[0], data[1]);
-	
+	if (len == 10)
+	printf("New packet (len: %d) (data %c%c%c%c%c%c%c%c%c%c)\n", len, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]);
+	else
+	printf("New packet (len: %d) (data %c%c)\n", len, data[0], data[1]);
+	//return;
 	packet * p = malloc(sizeof(packet));
 	p->type = TYPE_DATA;
 	memcpy(p->dest, dest, 4);
@@ -97,7 +100,9 @@ exit(1);
 		//if(fulldata[start]==NULL)break;
 		//}		
 		//newPacket(destip, bufferdata,strlen(bufferdata));
-		newPacket(destip, &fulldata[MAX_FRAME_SIZE*i],i==num-1?len-i*MAX_FRAME_SIZE:MAX_FRAME_SIZE);
+		int length = i==num-1?len-i*MAX_FRAME_SIZE:MAX_FRAME_SIZE;
+		if (length > 0)
+		newPacket(destip, &fulldata[MAX_FRAME_SIZE*i],length);
 		i++;
 //		printf("\nbuffer of 10 bytes is:%s\n",bufferdata);
 		//free(bufferdata);
@@ -113,11 +118,20 @@ return b;
 
 char* DTN_datareceive(char *srcip,char *buffer,int bufferlen)
 {
-	int flag=0,length1;
-	packet * p = getOldestPacket(srcip);
+	printf("Receive from ");
+	printIP(srcip);
+	printf("\n");
 	
-	if (p==NULL)
-	return NULL;
+	int flag=0,length1;
+	packet * p = NULL;
+	
+	while(p == NULL) 
+		p = getOldestPacket(srcip);
+	
+	printf("IM HERE\n");
+	
+	//if (p==NULL)
+	//return NULL;
 	
 	memcpy(buffer,p->data,minm(p->length - sizeof(packet) + MAX_FRAME_SIZE,bufferlen));
 
@@ -132,7 +146,7 @@ return buffer;
 
 int main(int argv, char * args[]) {
 	packet p1, p2, p3, p4;
-	
+	/**
 	p1.source[0] = 55;
 	p1.source[1] = 56;
 	p1.source[2] = 57;
@@ -200,9 +214,10 @@ printf("SEQ00: %d\n", p1.seq_num);
 	data[18] = '\0';
 	printf("The data is '%s'\n", data);	
 	
-		a1 = deliverPacket(&p3);
-	printf("ACK: %d\n", a1);
+	//	a1 = deliverPacket(&p3);
+	//printf("ACK: %d\n", a1);
 	exit(0);
+	*/
 	
 	if (! strcmp(args[1],"1")) {
 		printf("GATEWAY!!!\n");
@@ -247,11 +262,32 @@ printf("SEQ00: %d\n", p1.seq_num);
 	printf("My IP is ");
 	printIP(ipp);
 	printf("\n");
+  char buf[1000] = "Hello I am a string.";
+  char * dest = malloc(4);
+  dest[0] = 192;
+  dest[1] = 168;
+  dest[2] = 7;
+  dest[3] = 20;
   
+ char * src = malloc(4);
+  src[0] = 192;
+  src[1] = 168;
+  src[2] = 7;
+  src[3] = 25;
+  if (! strcmp(args[1],"2")){
 	while(1){
-		packet * p = getPacket(dtn0);
-		if (p != NULL) {
-			add_packetnode(p);
+		getchar();
+		DTN_datasend(src, buf, strlen(buf));
+		//packet * p = getPacket(dtn0);
+		//if (p != NULL) {
+		//	add_packetnode(p);
+		//}
+	}
+	} else {
+	while(1){
+		DTN_datareceive(dest, buf, 100);
+		buf[15] = '\0';
+		printf("DATA: '%s'\n");
 		}
 	}
 }
