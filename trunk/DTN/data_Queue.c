@@ -1,22 +1,23 @@
-#include<dataQueue.h>
+#include"dataQueue.h"
 
 
-dataQueue *root;
-int lock = 1;
+
+struct data_Queue *root;
+int lock1=0;
 void add_datapacketnode(packet *p1) {
 	
-	while(!lock);
-	lock = 0;
+	while(!lock1);
+	lock1 = 0;
 	int dup=0;
-	queue *node,*head3,*last;
+	struct data_Queue *node,*head3,*last;
 	if(root==NULL) {
-		node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
+		node=(struct data_Queue*)malloc(sizeof(struct data_Queue));
 		//printf("allocate %d\n", node);
 		node->p=p1;
 		node->next=NULL;
 		node->marked = 0;
 		root=node;
-		node->time_in = time(NULL);
+		//node->time_in = time(NULL);
 		//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 	} else {
 		head3=root;
@@ -30,19 +31,19 @@ void add_datapacketnode(packet *p1) {
 		head3=head3->next;
 		}
 		if(dup!=1) {
-			node=(struct dataqueue*)malloc(sizeof(struct dataqueue));
+			node=(struct data_Queue*)malloc(sizeof(struct data_Queue));
 			node->p=p1;
 			node->next=NULL;
 			node->marked = 0;
 			last->next=node;
 			last=node;
-			node->time_in = time(NULL);
+			//node->time_in = time(NULL);
 			//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 		}
 	}
 	
 	//printf("");
-	lock = 1;
+	lock1 = 1;
 }
 
 
@@ -50,7 +51,7 @@ int chk_seq(packet *p){
 	int high=-1;
 	struct data_Queue *temp=root;
 	while(temp!=NULL){
-		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->dest,4)==0)){
+		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->p->dest,4)==0)){
 			if(temp->p->seq_num > high)
 				high=temp->p->seq_num;	
 		}
