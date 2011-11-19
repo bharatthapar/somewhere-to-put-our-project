@@ -56,6 +56,7 @@ void printIP(char * ip) {
 }
 
 void print_all() {
+return;
 	while(!lock);
 	lock = 0;
 	queue *head3;
@@ -84,7 +85,7 @@ void print_all() {
 		head3=head3->next;
 		i++;
 	}
-	//system("clear");
+	system("clear");
 	printf("My IP is ");
 	printIP(ipp);
 	printf("\n");
@@ -110,9 +111,9 @@ void delete_marked() {
 			}
 			temp=head2;
 			head2=head2->next;
-			free(temp->p);
+			//free(temp->p);
 			//printf("free %d\n", temp);
-			free(temp);
+			//free(temp);
 				
 		} else {
 			prev = head2;
