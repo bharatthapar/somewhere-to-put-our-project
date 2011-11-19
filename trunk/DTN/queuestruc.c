@@ -135,7 +135,7 @@ void send_all(char *serverip) {
 	head2=root;
 	while(head2!=NULL) {
 		time_current = time(NULL);
-		if(time_current - (head2->time_in) < (head2->p)->ttl) 
+		if((time_current - (head2->time_in)) < head2->p->ttl) 
 		{
 			//printf("Will send packet as ttl is greater\n");
 			//printf("Diff in time is %d\n",time_current - head2->time_in);
