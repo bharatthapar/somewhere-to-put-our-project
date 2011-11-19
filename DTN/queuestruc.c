@@ -84,7 +84,7 @@ void print_all() {
 		head3=head3->next;
 		i++;
 	}
-	system("clear");
+	//system("clear");
 	printf("My IP is ");
 	printIP(ipp);
 	printf("\n");
