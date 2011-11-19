@@ -13,5 +13,6 @@ typedef struct data_Queue {
 } data_Queue;
 data_Queue *root;
 int chk_seq(packet *p);
+packet * getOldestPacket(char * srcip);
 
 #endif

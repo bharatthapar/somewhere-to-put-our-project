@@ -21,7 +21,7 @@
 #include"UDP_server.h"
 #include"bundle.h"
 	
-#define INTERVAL 5000		/* number of milliseconds to go off */
+#define INTERVAL 1000		/* number of milliseconds to go off */
 
 int MainSocket;
 int broadcast = 1;
@@ -33,7 +33,6 @@ char mask[4];
 
 
 void setGateway(char * ip, char * netMask) {
-	
 	gateway = 1;
 	memcpy(mask, netMask, 4);
 	printf("I am a gateway on the network ");

@@ -1,7 +1,9 @@
 #ifndef UDP_SERVER_H
 #define UDP_SERVER_H
 
-#include<inttypes.h>
+#include "packet.h"
+
+
 char ipp[4];
 int initialize(); 
 void send_beacon();
