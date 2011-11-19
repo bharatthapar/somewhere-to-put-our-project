@@ -235,9 +235,11 @@ void data_handler(struct Apacket *packet) {
 		if(!memcmp(packet->dest,ipp,4) || takePacket==1)//The received packet is destined for me.
 		{	
 			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
-			isOld(ack);
-			add_packetnode(ack);
-			delete_packetnode(ack);
+			if(ack!=NULL){
+				isOld(ack);
+				add_packetnode(ack);
+				delete_packetnode(ack);
+			}
 		}
 		else 
 		{

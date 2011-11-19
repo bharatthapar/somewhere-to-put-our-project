@@ -8,20 +8,29 @@
 #include "tunnel.h"
 int dtn0;
 packet * deliverPacket(packet * p) {
+	
 	packet * ack = malloc(sizeof(packet));
-	memcpy(ack->dest, p->source, 4);
-	memcpy(ack->source, p->dest, 4);
-	ack->type = TYPE_ACK;
-	ack->ttl = 20;
-	sprintf(ack->data, "ACK");
-	ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
-	ack->seq_num = p->seq_num;
-	isOld(ack);
-	sendPacket(dtn0, p);
-	//free packets
-	free(p);
-	return ack;
+	if(chk_seq(p) == p->seq_num-1)
+	{
+		add_datapacketnode(p);
+		memcpy(ack->dest, p->source, 4);
+		memcpy(ack->source, p->dest, 4);
+		ack->type = TYPE_ACK;
+		ack->ttl = 20;
+		sprintf(ack->data, "ACK");
+		ack->length = sizeof(packet) - MAX_FRAME_SIZE + 3;
+		ack->seq_num = p->seq_num;
+		isOld(ack);
+		sendPacket(dtn0, p);
+		//free packets
+		//free(p);
+		return ack;
+	}
+	else
+		return NULL;
 }
+
+
 
 void newPacket(char * dest, char * data, int len) {
 	packet * p = malloc(sizeof(packet));
