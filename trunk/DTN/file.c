@@ -62,12 +62,12 @@ int flag;
 //	char DSTIP[4],SRCIP[4];
 flag=args[1];
 	pthread_t sender,receiver;
-while(1){
+
 	if(flag==1)
 	pthread_create(&sender,NULL,sendData,NULL);
 	if(flag==2)
 	pthread_create(&receiver,NULL,readData,NULL);
-	}
-
+	
+while(1);
 return 0;
 }
