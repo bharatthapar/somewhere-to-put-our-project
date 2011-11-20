@@ -139,7 +139,7 @@ int DTN_datareceive(char *srcip,char *buffer,int bufferlen)
 
 	//free(p);
 	
-return 0;
+return minm(p->length - sizeof(packet) + MAX_FRAME_SIZE,bufferlen);;
 }
 
 
