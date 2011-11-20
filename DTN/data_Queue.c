@@ -2,8 +2,51 @@
 
 
 
-struct data_Queue *root = NULL;
+struct data_Queue *roots = NULL;
 int lock1=1;
+
+void print_all1() {
+
+	while(!lock1);
+	lock1 = 0;
+	data_Queue *head3;
+	int i=0;
+	head3=roots;
+	int data = 0;
+	int ack = 0;
+	//printf("Printing packets in the queue:\n");
+	while(head3!=NULL) {
+		//printf("----Packet-----\n");
+		//printf("type: %d\n",head3->p->type);
+		//printf("source: ");
+		//printIP(head3->p->source);
+		//printf("\n");
+		//printf("dest: ");
+		//printIP(head3->p->dest);
+		//printf("\n");
+		//printf("sequence: %d",head3->p->seq_num);
+		//printf(" %s\n",head3->p->data);
+		//printf("---End Packet---\n");
+		if (head3->p->type == TYPE_DATA)
+			data++;
+		else if (head3->p->type == TYPE_ACK)
+			ack++;
+		
+		head3=head3->next;
+		i++;
+	}
+	system("clear");
+	//printf("My IP is ");
+	//printIP(ipp);
+	printf("\n");
+	printf("Number of data packets present: %d\n", data);
+	printf("Number of ACKS present %d\n", ack);
+	//printf("Queue ends\n");
+	lock1=1;
+}
+
+
+
 void add_datapacketnode(packet *p1) {
 	while(!lock1);
 	lock1 = 0;
@@ -17,19 +60,19 @@ void add_datapacketnode(packet *p1) {
 
 	int dup=0;
 	struct data_Queue *node,*head3,*last;
-	if(root==NULL) {
+	if(roots==NULL) {
 		node=(struct data_Queue*)malloc(sizeof(struct data_Queue));
 		//printf("allocate %d\n", node);
 		node->p=p1;
 		node->next=NULL;
 		node->marked = 0;
-		root=node;
+		roots=node;
 		printf("FGSDFDSFSD\n");
 		//node->time_in = time(NULL);
 		//printf("The packet goes in the list at %d with data %s\n",node->time_in,node->p->data);
 	} else {
 	printf("aaaaaaFGSDFDSFSD\n");
-		head3=root;
+		head3=roots;
 		while(head3!=NULL) {
 			if(memcmp((head3->p)->source,p1->source,4)==0 && memcmp((head3->p)->dest,p1->dest,4)==0 && (head3->p)->seq_num==p1->seq_num && p1->type==(head3->p)->type ) {
 				dup=1;
@@ -39,6 +82,7 @@ void add_datapacketnode(packet *p1) {
 		head3=head3->next;
 		}
 		if(dup!=1) {
+			printf("Not a duplicate packet\nADDING it to data_queue\n");
 			node=(struct data_Queue*)malloc(sizeof(struct data_Queue));
 			node->p=p1;
 			node->next=NULL;
@@ -63,22 +107,25 @@ int chk_seq(packet *p){
 	printf("DST: ");
 	printIP(p->dest);
 	printf("\n");
-	
+	print_all1();
 	while(!lock1);
 	lock1 = 0;
 	
 	
 	int high=0;
-	struct data_Queue *temp=root;
+	struct data_Queue *temp=roots;
 	while(temp!=NULL){
+		printf("Traversing the loop\n");
 		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->p->dest,4)==0)){
-			printf("SRC: ");
+			/*printf("SRC: ");
 	printIP(temp->p->source);
 	printf("\n");
 	printf("DST: ");
 	printIP(temp->p->dest);
-	printf("\n");
-			if(temp->p->seq_num > high)
+	printf("\n");*/
+		printf("found a matchinf flow\n");
+	
+			if(temp->p->seq_num > high) 			
 				high=temp->p->seq_num;	
 		}
 		temp=temp->next;
@@ -94,13 +141,13 @@ void deletenode(struct data_Queue *stop) {
 	data_Queue *node,*head2,*temp,*prev;
 	packet *p2;
 	int result;
-	if(root==NULL) 
+	if(roots==NULL) 
 	{
 		printf("No packets in master queue right now. Aborted delete node operation");
                 exit(1);
 	} 
 	else {
-		head2=root;
+		head2=roots;
 		prev = NULL;
 		
 		while(head2!=NULL) {
@@ -110,15 +157,15 @@ void deletenode(struct data_Queue *stop) {
 			if(head2->marked == 1) {
 				printf("deleting packet from master queue!!\n");
 				if (prev == NULL) {
-					root = head2->next;
+					roots = head2->next;
 				} else {
 					prev->next = head2->next;
 				}
 				temp=head2;
 				head2=head2->next;
-				//free(temp->p);
+				free(temp->p);
 				//printf("free %d\n", temp);
-				//free(temp);
+				free(temp);
 				
 			} else {
 				prev = head2;
@@ -134,7 +181,7 @@ while(!lock1);
 lock1=0;
 data_Queue *headnew,*headnew1,*nodenew;
 packet *pnew;
-headnew=root;
+headnew=roots;
 int flag=0,length1;
 
 		if(headnew==NULL) 
@@ -155,7 +202,7 @@ else
 			nodenew=headnew;
 			nodenew->marked=1;
 			lock1=1;
-			//deletenode(nodenew);
+			deletenode(nodenew);
 			
 			return nodenew->p;
 			flag=1;
