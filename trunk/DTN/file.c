@@ -60,7 +60,7 @@ int flag;
 //FILE *fp;
 //int bufferlen,len1,buffer_length,a,b,c,d;
 //	char DSTIP[4],SRCIP[4];
-flag=args[1];
+flag=atoi(args[1]);
 	pthread_t sender,receiver;
 
 	if(flag==1)
