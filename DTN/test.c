@@ -25,8 +25,18 @@ void * waitForData() {
 
 
 int main(int argv, char * args[]) {
+
+
+	//initialize(interface);
+	initialize(args[1]);
+
+
+
+
+
+
 	int a,b,c,d;
-	sscanf(args[1], "%d.%d.%d.%d", &a, &b, &c, &d);
+	sscanf(args[2], "%d.%d.%d.%d", &a, &b, &c, &d);
 	listenTo[0] = a;
 	listenTo[1] = b;
 	listenTo[2] = c;
