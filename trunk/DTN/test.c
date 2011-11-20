@@ -47,11 +47,11 @@ int main(int argv, char * args[]) {
 	char buffer[1024];
 	while (1) {
 		gets(buffer);
-		sscanf(args[1], "%d.%d.%d.%d", &a, &b, &c, &d);
+		sscanf(buffer, "%d.%d.%d.%d", &a, &b, &c, &d);
 		IP[0] = a;
-		IP[0] = b;
-		IP[0] = c;
-		IP[0] = d;
+		IP[1] = b;
+		IP[2] = c;
+		IP[3] = d;
 		gets(buffer);
 		printf("Sending to ");
 		printIP(IP);

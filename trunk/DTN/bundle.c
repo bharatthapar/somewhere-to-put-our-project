@@ -10,6 +10,8 @@
 
 int dtn0;
 
+
+
 packet * deliverPacket(packet * p) {
 	//printf("SEQ1: %d\n", p->seq_num);
 	
