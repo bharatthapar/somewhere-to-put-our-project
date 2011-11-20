@@ -7,11 +7,11 @@ void * readData() {
 	char SRCIP[4],buffer[1024];
 	int a,b,c,d,bufferlen,len1;
 	printf("DATA RECV OPN: Enter IP address to receive the data packets from & the buffer length of data to be read from that IP: \n");
-	scanf("%d.%d.%d.%d", &a, &b, &c, &d,"%d",bufferlen);
+	scanf("%d.%d.%d.%d %d", &a, &b, &c, &d,&bufferlen);
 		SRCIP[0] = a;
-		SRCIP[0] = b;
-		SRCIP[0] = c;
-		SRCIP[0] = d;;
+		SRCIP[1] = b;
+		SRCIP[2] = c;
+		SRCIP[3] = d;;
 
 	printf("DATA READ FROM SRCIP:\n");
 		while(bufferlen>0)
@@ -24,15 +24,15 @@ void * readData() {
 	}
 
 void * sendData() {
-        char DSTIP[4],*file,*buffer1;
+        char DSTIP[4],file[100],*buffer1;
 	int a,b,c,d,buffer_length;
 	FILE *fp;
 	printf("DATA SEND OPN: Enter the file name and IP address to transfer the file to: \n");
-	scanf("%s",file, "%d.%d.%d.%d", &a, &b, &c, &d);
+	scanf("%s %d.%d.%d.%d",file,&a, &b, &c, &d);
 		DSTIP[0] = a;
-		DSTIP[0] = b;
-		DSTIP[0] = c;
-		DSTIP[0] = d;;
+		DSTIP[1] = b;
+		DSTIP[2] = c;
+		DSTIP[3] = d;;
 
 //fp = fopen("data.txt","r");
 fp=fopen(file,"r");
