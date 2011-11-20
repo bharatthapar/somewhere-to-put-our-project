@@ -116,7 +116,7 @@ if(a>b) return a;
 return b;
 } 
 
-char* DTN_datareceive(char *srcip,char *buffer,int bufferlen)
+int DTN_datareceive(char *srcip,char *buffer,int bufferlen)
 {
 	printf("Receive from ");
 	printIP(srcip);
@@ -137,16 +137,16 @@ char* DTN_datareceive(char *srcip,char *buffer,int bufferlen)
 
 	//free(p);
 	
-return buffer;
+return 0;
 }
 
 
 
 
-
+/*
 int main(int argv, char * args[]) {
 	packet p1, p2, p3, p4;
-	/**
+	
 	p1.source[0] = 55;
 	p1.source[1] = 56;
 	p1.source[2] = 57;
@@ -187,14 +187,18 @@ printf("SEQ00: %d\n", p1.seq_num);
 	packet * a1 = deliverPacket(&p1);
 	printf("ACK: %d\n", a1);	
 	
+	a1 = deliverPacket(&p3);
+	printf("ACK: %d\n", a1);
+	
+	
 	a1 = deliverPacket(&p2);
 	printf("ACK: %d\n", a1);
 	
 	a1 = deliverPacket(&p3);
 	printf("ACK: %d\n", a1);
 	
-	a1 = deliverPacket(&p4);
-	printf("ACK: %d\n", a1);
+	//a1 = deliverPacket(&p4);
+	//printf("ACK: %d\n", a1);
 
 	
 	
@@ -217,7 +221,7 @@ printf("SEQ00: %d\n", p1.seq_num);
 	//	a1 = deliverPacket(&p3);
 	//printf("ACK: %d\n", a1);
 	exit(0);
-	*/
+	
 	
 	if (! strcmp(args[1],"1")) {
 		printf("GATEWAY!!!\n");
@@ -291,3 +295,4 @@ printf("SEQ00: %d\n", p1.seq_num);
 		}
 	}
 }
+*/
