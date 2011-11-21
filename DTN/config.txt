@@ -18,3 +18,8 @@ Off
 #Packet Life
 100
 
+#Beacon Interval
+5000
+
+#Max Data Size
+1400

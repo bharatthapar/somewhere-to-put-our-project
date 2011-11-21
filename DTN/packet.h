@@ -6,7 +6,7 @@
 
 /* Maximum size of data chunk that can be sent in a packet */
 
-#define MAX_FRAME_SIZE		10
+#define MAX_DATA_SIZE		10
 #define TYPE_BEACON			1
 #define TYPE_DATA			2
 #define TYPE_ACK			3
@@ -20,7 +20,7 @@ typedef struct Apacket {
 	char dest[4];
 	uint32_t seq_num;
 	uint32_t ttl;
-	char data[MAX_FRAME_SIZE];
+	char data[MAX_DATA_SIZE];
 } packet;
 #pragma pack(pop)
 #endif

@@ -7,6 +7,8 @@ typedef struct configOptions {
 	int port;
 	int gatewayMode;
 	int packetLife;
+	int beaconInterval;
+	int maxDataSize;
 	int numberBroadcasts;
 	char * broadcastIP;
 } config;
