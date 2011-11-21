@@ -3,7 +3,7 @@
 
 #include "queuestruc.h"
 #include "packet.h"
-#include "UDP_server.h"
+#include "DTN.h"
 #include "sequence.h"
 
 queue *root,*head;
