@@ -20,17 +20,14 @@
 #include"sequence.h"
 #include"DTN.h"
 #include"bundle.h"
-	
-#define INTERVAL 1000		/* number of milliseconds to go off */
+#include "config.c"
 
 int MainSocket;
-int broadcast = 1;
 struct sockaddr_in server_addr , client_addr;
-char *my_ip[5],*temp;
 int gateway = 0;
 char net[4];
 char mask[4];
-
+config * configuration;
 
 void setGateway(char * ip, char * netMask) {
 	gateway = 1;
@@ -46,18 +43,16 @@ void setGateway(char * ip, char * netMask) {
 
 void * oldMain() {
 	struct itimerval it_val;	/* for setting itimer */
-    	pthread_t sender,receiver;
+   	pthread_t sender,receiver;
 	pthread_create(&receiver,NULL,waitForPacket,NULL);
-	if (signal(SIGALRM, (void (*)(int)) send_beacon) == SIG_ERR) 
-	{
+	if (signal(SIGALRM, (void (*)(int)) send_beacon) == SIG_ERR) {
     		perror("Unable to catch SIGALRM");
     		exit(1);
   	}
-  	it_val.it_value.tv_sec =     INTERVAL/1000;
-  	it_val.it_value.tv_usec =    (INTERVAL*1000) % 1000000;	
+  	it_val.it_value.tv_sec = configuration->beaconInterval/1000;
+  	it_val.it_value.tv_usec = (configuration->beaconInterval*1000) % 1000000;	
   	it_val.it_interval = it_val.it_value;
-  	if (setitimer(ITIMER_REAL, &it_val, NULL) == -1) 
-	{
+  	if (setitimer(ITIMER_REAL, &it_val, NULL) == -1) {
   		  perror("error calling setitimer()");
   		  exit(1);
   	}
@@ -66,205 +61,129 @@ void * oldMain() {
 	return 0;
 }
 
-void get_my_ip(char interface[]) {
-	char hostbuf[256];
-        /*struct hostent *hostentry;
-        int ret;
-        ret = gethostname(hostbuf,sizeof(hostbuf));
-        if(-1 == ret)
-	{
-                perror("gethostname");
-                exit(1);
-        }
 
-        hostentry = gethostbyname(hostbuf);
-
-        if(NULL == hostentry)
-	{
-                perror("gethostbyname");
-                exit(1);
-        }
-	*/
-
-	struct ifreq ifr;
-	int fd;
-	fd = socket(AF_INET, SOCK_DGRAM, 0);
-	ifr.ifr_addr.sa_family = AF_INET;	
-	strcpy(ifr.ifr_name, interface);
-	ioctl(fd, SIOCGIFADDR, &ifr);
-	close(fd);
-
-        temp = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);	
-        if(NULL == my_ip)
-	{
-                perror("inet_ntoa");
-                exit(1);
-        }
-	int i =0;
-	my_ip[0] = (char*)strtok(temp,".");
-		
-	while (my_ip[i])
-	{
-		 i++;
-		 my_ip[i] = strtok (NULL, ".");
+int initialize(config * c) {
+	int broadcast = 1;
+	configuration =  c;
+	struct in_addr a;
+	char host[100];
+	gethostname(host,sizeof(host));	
+	struct hostent *name=gethostbyname(host);
+	MainSocket = socket(AF_INET,SOCK_DGRAM,0);
+	if(MainSocket == -1) {
+		perror("Socket");
+		exit(1);
 	}
-		
-	ipp[0]=atoi(my_ip[0]);
-	ipp[1]=atoi(my_ip[1]);
-	ipp[2]=atoi(my_ip[2]);
-	ipp[3]=atoi(my_ip[3]);
-}
+	if (setsockopt(MainSocket, SOL_SOCKET, SO_BROADCAST, &broadcast,sizeof broadcast) == -1) {
+		 perror("setsockopt (SO_BROADCAST)");
+		 exit(1);
+  	}
 
-
-
-int initialize(char interface[]) {
-		struct in_addr a;
-		char host[100];
-		gethostname(host,sizeof(host));	
-		struct hostent *name=gethostbyname(host);
-		get_my_ip(interface);
-		MainSocket = socket(AF_INET,SOCK_DGRAM,0);
-		if(MainSocket == -1) {
-			perror("Socket");
-			exit(1);
-		}
-		if (setsockopt(MainSocket, SOL_SOCKET, SO_BROADCAST, &broadcast,sizeof broadcast) == -1) {
-       			 perror("setsockopt (SO_BROADCAST)");
-       			 exit(1);
-    		}
-
-		server_addr.sin_family = AF_INET;
-        	server_addr.sin_port = htons(8000);
-        	server_addr.sin_addr.s_addr = INADDR_ANY;
-        	bzero(&(server_addr.sin_zero),8);
+	server_addr.sin_family = AF_INET;
+   	server_addr.sin_port = htons(configuration->port);
+   	server_addr.sin_addr.s_addr = INADDR_ANY;
+   	bzero(&(server_addr.sin_zero),8);
 			
-		pthread_t run;
-		pthread_create(&run,NULL,oldMain,NULL);
-	
-		return MainSocket;
+	pthread_t run;
+	pthread_create(&run,NULL,oldMain,NULL);
+	printf("My IP is: ");
+	printIP(configuration->IP);
+	printf("\n");
+	return 0;
 }
-
-
-
 
 void *waitForPacket() {
-		int listen_sock;
-		int bytes_read;		
-		char recv_data[1024];
-		int addr_len = sizeof(struct sockaddr);		
-		listen_sock = MainSocket;
+	int bytes_read;		
+	int addr_len = sizeof(struct sockaddr);		
 		
-        	if (bind(listen_sock,(struct sockaddr *)&server_addr,sizeof(struct sockaddr)) == -1)
-        	{
-            		perror("Bind");
-            		exit(1);
-        	}
+    if (bind(MainSocket,(struct sockaddr *)&server_addr,sizeof(struct sockaddr)) == -1) {
+       	perror("Bind");
+       	exit(1);
+    }
 		
-	        fflush(stdout);
-		while(1) {
-			
-			struct Apacket *packet1;
-			packet1 = (packet *)malloc(sizeof(packet));
-		
-			bytes_read = recvfrom(listen_sock,packet1,1024,0,(struct sockaddr *)&client_addr, &addr_len);
+	while(1) {
+		packet *packet1;
+		packet1 = (packet *)malloc(sizeof(packet));
+		bytes_read = recvfrom(MainSocket,packet1,sizeof(packet),0,(struct sockaddr *)&client_addr, &addr_len);
 
-			if(memcmp(packet1->source, ipp, 4))
-			{	
+		if(memcmp(packet1->source, configuration->IP, 4)) {	
 			if(packet1->type == TYPE_BEACON) {
 				send_all(inet_ntoa(client_addr.sin_addr));
-				memset(packet1,NULL,sizeof(packet));
+				//memset(packet1,NULL,sizeof(packet));
 				free(packet1);
-			}
-			else if(packet1->type == TYPE_DATA) {
-				//printf("Received DATA with ttl %d\n",packet1->ttl);
+			} else if(packet1->type == TYPE_DATA) {
 				data_handler(packet1);
-			}
-			else if(packet1->type == TYPE_ACK) {
-				//printf("Received ACK with ttl %d\n",packet1->ttl);
+			} else if(packet1->type == TYPE_ACK) {
 				ack_handler(packet1);
 			}
-			}
-		  	fflush(stdout);
 		}
+	}
 }
 
-void sendPackets(struct Apacket *packet, char *ip) {
-	int send_sock;
-	send_sock = MainSocket;
+void sendPacket(struct Apacket *packet, char *ip) {
 	server_addr.sin_addr.s_addr = inet_addr(ip);
 	server_addr.sin_port = htons(8000);
 	bzero(&(server_addr.sin_zero),8);
-	sendto(send_sock, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+	sendto(MainSocket, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
 }
-
-
 
 void send_beacon() {
-	print_all();
-	struct Apacket *packet = (struct Apacket *)malloc(sizeof(struct Apacket));
-	packet->type = 1;
-	packet->seq_num = 0;
-	sprintf(packet->data,"Beacon\n");
-	packet->source[0]=ipp[0];
-	packet->source[1]=ipp[1];
-	packet->source[2]=ipp[2];
-	packet->source[3]=ipp[3];
-	packet->length = sizeof(struct Apacket)-MAX_FRAME_SIZE+strlen(packet->data);
-	sendPackets(packet,"192.168.1.255");
-	free(packet);
+	//printf("Beacon\n");
+	packet * beacon = (packet *)malloc(sizeof(packet));
+	beacon->type = TYPE_BEACON;
+	beacon->seq_num = 0;
+	sprintf(beacon->data,"Beacon\n");
+	beacon->source[0]=configuration->IP[0];
+	beacon->source[1]=configuration->IP[1];
+	beacon->source[2]=configuration->IP[2];
+	beacon->source[3]=configuration->IP[3];
+	beacon->length = sizeof(packet)-MAX_DATA_SIZE+strlen(beacon->data);
+	//HANDLE MULTIPLE BEACONS HERE
+	char buf[20];
+	sprintf(buf, "%d.%d.%d.%d", configuration->broadcastIP[0]>=0?configuration->broadcastIP[0]:configuration->broadcastIP[0]+256, configuration->broadcastIP[1]>=0?configuration->broadcastIP[1]:configuration->broadcastIP[1]+256, configuration->broadcastIP[2]>=0?configuration->broadcastIP[2]:configuration->broadcastIP[2]+256, configuration->broadcastIP[3]>=0?configuration->broadcastIP[3]:configuration->broadcastIP[3]+256);
+	sendPacket(beacon, buf);
+	free(beacon);
 }
 
-void data_handler(struct Apacket *packet) {
-	/*	Got packet ---- Update seq num ---- If 1 -> store data in linked list, else return */
-	struct Apacket *ack;
+void data_handler(packet *p) {
+	packet *ack;
 	int takePacket = 0;
-		
-	if(isOld(packet)==NOT_OLD_PACKET) {
+	if(isOld(p)==NOT_OLD_PACKET) {
 		takePacket = 0;
 		if (gateway) {
 			char pNet[4];
-			pNet[0] = packet->dest[0] & mask[0];
-			pNet[1] = packet->dest[1] & mask[1];
-			pNet[2] = packet->dest[2] & mask[2];
-			pNet[3] = packet->dest[3] & mask[3];
+			pNet[0] = p->dest[0] & mask[0];
+			pNet[1] = p->dest[1] & mask[1];
+			pNet[2] = p->dest[2] & mask[2];
+			pNet[3] = p->dest[3] & mask[3];
 			if (pNet[0] != net[0] || pNet[1] != net[1] || pNet[2] != net[2] || pNet[3] != net[3]) {
 				takePacket = 1;
 			}
 		}
-		if(!memcmp(packet->dest,ipp,4) || takePacket==1)//The received packet is destined for me.
-		{	
-			ack=deliverPacket(packet);	//Get the ACK from the bundle layer
-			if(ack!=NULL){
+		if(!memcmp(p->dest,configuration->IP,4) || takePacket==1) {//The received packet is destined for me.	
+			ack=deliverPacket(p);	//Get the ACK from the bundle layer
+			if(ack!=NULL) {
 				isOld(ack);
 				add_packetnode(ack);
 				delete_packetnode(ack);
 			}
-		}
-		else 
-		{
-			add_packetnode(packet);
+		} else {
+			add_packetnode(p);
 		}
 	}
-	return ;
+	return;
 }
 
-void ack_handler(struct Apacket *packet) {
-	/*Got ACK ---- Update seq num ---- If 1 -> store ACK in linked list....remove all old data and ACK packets, else return0*/
-
-	if(isOld(packet)==NOT_OLD_PACKET) {
-		if(memcmp(packet->dest,ipp,4)!=0)
-		{
-				//printf("ACK IS NOT FOR ME");
-				add_packetnode(packet);
-		}
-		else 
-		{
+void ack_handler(packet *p) {
+	if(isOld(p)==NOT_OLD_PACKET) {
+		//if(memcmp(p->dest,configuration->IP,4)!=0) {
+			add_packetnode(p);
+		//} else {
 			//printf("ACK IS FOR ME... NOT ADDING TO LIST\n");
-		}
-                delete_packetnode(packet);
-		print_all();
+		//}
+        delete_packetnode(p);
 	}
-	return ;
+	return;
 }
 
 

@@ -16,6 +16,8 @@ config * getConfiguration(char * sFile) {
 	int haveBroadcastAddress = 0;
 	int haveGatewayMode = 0;
 	int havePacketLife = 0;
+	int haveBeaconInterval = 0;
+	int haveMaxDataSize = 0;
 	config * out = malloc(sizeof(config));
 	FILE * file = fopen(sFile, "r");
 	if (file == NULL) {
@@ -52,9 +54,7 @@ config * getConfiguration(char * sFile) {
 						out->numberBroadcasts = 0;
 						int i = 0;
 						haveBroadcastAddress = 1;
-						printf("hh\n");
 						while (fscanf(file, "%d.%d.%d.%d", &a, &b, &c, &d) >= 4) {
-						printf("hh2\n");
 							line2[i] = a;
 							line2[i+1] = b;
 							line2[i+2] = c;
@@ -66,6 +66,10 @@ config * getConfiguration(char * sFile) {
 							error("Could not read broadcast addresses");
 						out->broadcastIP = malloc(i);
 						memcpy(out->broadcastIP, line2, i);
+					} else if (memcmp("#Beacon Interval", line1, 16) == 0) {
+						if (fscanf(file, "%d", &(out->beaconInterval)) < 1)
+							error("Could not read beacon interval");
+						haveBeaconInterval = 1;	
 					}
 					break;
 				case 'G':
@@ -93,14 +97,20 @@ config * getConfiguration(char * sFile) {
 				case 'P':
 					if (memcmp("#Packet Life", line1, 12) == 0) {
 						if (fscanf(file, "%d", &(out->packetLife)) < 1)
-							error("Could not packet life");
+							error("Could not read packet life");
 						havePacketLife = 1;					
 					} else if (memcmp("#Port", line1, 5) == 0) {
 						if (fscanf(file, "%d", &(out->port)) < 1)
 							error("Could not read port");
 						havePort = 1;
 					}
-					break;		
+					break;	
+				case 'M':
+					if (memcmp("#Max Data Size", line1, 14) == 0) {
+						if (fscanf(file, "%d", &(out->maxDataSize)) < 1)
+							error("Could not read max data size");
+						haveMaxDataSize = 1;	
+					}
 			}
 		}
 	}
@@ -123,7 +133,12 @@ config * getConfiguration(char * sFile) {
 	if (havePacketLife == 0) {
 		error("Packet life not specified");
 	}
-	
+	if (haveBeaconInterval == 0) {
+		error("Beacon interval not specified");
+	}
+	if (haveMaxDataSize == 0) {
+		error("Max data size not specified");
+	}
 	fclose(file);
 	return out;
 }
