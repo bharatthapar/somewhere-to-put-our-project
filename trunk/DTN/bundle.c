@@ -60,7 +60,6 @@ void DTN_datasend(char *destip,char *fulldata, int len) {
 	int i=0;;
 
 	num=(len/MAX_DATA_SIZE)+1;
-	printf("Number packets %d\n", num);
 	while(i<num) {
 		int length = (i==num-1?len-i*MAX_DATA_SIZE:MAX_DATA_SIZE);
 		if (length > 0)

@@ -6,7 +6,7 @@
 
 /* Maximum size of data chunk that can be sent in a packet */
 
-#define MAX_DATA_SIZE		10
+#define MAX_DATA_SIZE		1400
 #define TYPE_BEACON			1
 #define TYPE_DATA			2
 #define TYPE_ACK			3
