@@ -90,12 +90,12 @@ void injectNetPacket(int iface, packet * p) {
 	}
 }
 
-int main() {
-	config * c = getConfiguration("config.txt");
+int main(int argc, char * args[]) {
+	config * c = getConfiguration(args[2]);
 	initialize(c);
-	dtn0 = tun_init("dtn0");
+	dtn0 = tun_init(args[1]);
 	char buf[200];
-	sprintf(buf, "ifconfig dtn0 %d.%d.%d.%d/24 up mtu %d", configuration->IP[0]>=0?configuration->IP[0]:configuration->IP[0]+256, configuration->IP[1]>=0?configuration->IP[1]:configuration->IP[1]+256, configuration->IP[2]>=0?configuration->IP[2]:configuration->IP[2]+256, configuration->IP[3]>=0?configuration->IP[3]:configuration->IP[3]+256, MAX_DATA_SIZE);
+	sprintf(buf, "ifconfig %s %d.%d.%d.%d/24 up mtu %d",args[1] , configuration->IP[0]>=0?configuration->IP[0]:configuration->IP[0]+256, configuration->IP[1]>=0?configuration->IP[1]:configuration->IP[1]+256, configuration->IP[2]>=0?configuration->IP[2]:configuration->IP[2]+256, configuration->IP[3]>=0?configuration->IP[3]:configuration->IP[3]+256, MAX_DATA_SIZE);
 	system(buf);
 	pthread_t sender,receiver;
 	pthread_create(&receiver,NULL,injectNetPacket,NULL);
