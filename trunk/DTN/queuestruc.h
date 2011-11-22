@@ -19,5 +19,6 @@ void send_all(char *ip);
 void send_packetnode(struct Apacket *packet,char*ip);
 void delete_packetnode(struct Apacket *packet);
 void print_all();
+void printIP(char * ip);
 
 #endif

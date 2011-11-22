@@ -12,12 +12,12 @@ char listenTo[4];
 
 void * waitForData() {
 	char buffer[1024];
-	printf("Listening for data from: ");
-	printIP(listenTo);
+	printf("Listening for data from anyone");
+	//printIP(listenTo);
 	printf("\n");
 	buffer[1023] = '\0';
 	while (1) {
-		DTN_datareceive(listenTo, buffer, 1023);
+		DTN_datareceive(NULL, buffer, 1023);
 		printf("Data received: %s\n", buffer);
 	}
 }

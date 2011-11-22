@@ -104,7 +104,6 @@ void send_all(char *serverip) {
 		}
 		temp=temp->next;
 	}
-	
 	delete_marked();
 	lock = 1;
 }
