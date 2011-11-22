@@ -14,5 +14,6 @@ typedef struct data_Queue {
 
 int chk_seq(packet *p);
 packet * getOldestPacket(char * srcip);
+void add_datapacketnode(packet *p1);
 
 #endif

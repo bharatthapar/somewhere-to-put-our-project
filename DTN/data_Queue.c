@@ -6,7 +6,6 @@ struct data_Queue *roots = NULL;
 int lock1=1;
 
 void print_all1() {
-
 	while(!lock1);
 	lock1 = 0;
 	data_Queue *head3;

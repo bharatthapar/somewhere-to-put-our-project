@@ -92,6 +92,20 @@ int initialize(config * c) {
 	return 0;
 }
 
+void packetArrival(packet * packet1) {
+	if(memcmp(packet1->source, configuration->IP, 4)) {	
+		if(packet1->type == TYPE_BEACON) {
+			send_all(inet_ntoa(client_addr.sin_addr));
+				//memset(packet1,NULL,sizeof(packet));
+			free(packet1);
+		} else if(packet1->type == TYPE_DATA) {
+			data_handler(packet1);
+		} else if(packet1->type == TYPE_ACK) {
+			ack_handler(packet1);
+		}
+	}
+}
+
 void *waitForPacket() {
 	int bytes_read;		
 	int addr_len = sizeof(struct sockaddr);		
@@ -105,18 +119,7 @@ void *waitForPacket() {
 		packet *packet1;
 		packet1 = (packet *)malloc(sizeof(packet));
 		bytes_read = recvfrom(MainSocket,packet1,sizeof(packet),0,(struct sockaddr *)&client_addr, &addr_len);
-
-		if(memcmp(packet1->source, configuration->IP, 4)) {	
-			if(packet1->type == TYPE_BEACON) {
-				send_all(inet_ntoa(client_addr.sin_addr));
-				//memset(packet1,NULL,sizeof(packet));
-				free(packet1);
-			} else if(packet1->type == TYPE_DATA) {
-				data_handler(packet1);
-			} else if(packet1->type == TYPE_ACK) {
-				ack_handler(packet1);
-			}
-		}
+		packetArrival(packet1);
 	}
 }
 
@@ -138,10 +141,13 @@ void send_beacon() {
 	beacon->source[2]=configuration->IP[2];
 	beacon->source[3]=configuration->IP[3];
 	beacon->length = sizeof(packet)-MAX_DATA_SIZE+strlen(beacon->data);
-	//HANDLE MULTIPLE BEACONS HERE
 	char buf[20];
-	sprintf(buf, "%d.%d.%d.%d", configuration->broadcastIP[0]>=0?configuration->broadcastIP[0]:configuration->broadcastIP[0]+256, configuration->broadcastIP[1]>=0?configuration->broadcastIP[1]:configuration->broadcastIP[1]+256, configuration->broadcastIP[2]>=0?configuration->broadcastIP[2]:configuration->broadcastIP[2]+256, configuration->broadcastIP[3]>=0?configuration->broadcastIP[3]:configuration->broadcastIP[3]+256);
-	sendPacket(beacon, buf);
+	int i=0, j=0;
+	for (i=0; i<configuration->numberBroadcasts; i++) {
+		sprintf(buf, "%d.%d.%d.%d", configuration->broadcastIP[j+0]>=0?configuration->broadcastIP[j+0]:configuration->broadcastIP[j+0]+256, configuration->broadcastIP[j+1]>=0?configuration->broadcastIP[j+1]:configuration->broadcastIP[j+1]+256, configuration->broadcastIP[j+2]>=0?configuration->broadcastIP[j+2]:configuration->broadcastIP[j+2]+256, configuration->broadcastIP[j+3]>=0?configuration->broadcastIP[j+3]:configuration->broadcastIP[j+3]+256);
+		sendPacket(beacon, buf);
+		j=j+4;
+	}
 	free(beacon);
 }
 

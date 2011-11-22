@@ -7,6 +7,7 @@
 #include <string.h>
 #include "dataQueue.h"
 #include "config.h"
+#include <unistd.h>
 
 extern config * configuration;
 
@@ -76,8 +77,12 @@ int minm(int a, int b) {
 int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 	packet * p = NULL;
 	
-	while(p == NULL) 
+	while(p == NULL) {
 		p = getOldestPacket(srcip);
+		if (p == NULL) {
+			sleep(configuration->beaconInterval/2000);
+		}
+	}
 	
 	memcpy(buffer,p->data,minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
 
