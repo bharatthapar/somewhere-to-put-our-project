@@ -86,7 +86,7 @@ sequence * newSeqNumber(packet * p) {
 		memcpy(out->source, p->source, 4);
 		memcpy(out->dest, p->dest, 4);
 
-		out->seqNum = 0;
+		out->seqNum = 1;
 	} else if (p->type == TYPE_ACK) {
 		memcpy(out->dest, p->source, 4);
 		memcpy(out->source, p->dest, 4);
