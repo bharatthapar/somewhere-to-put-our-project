@@ -51,7 +51,7 @@ void * allocate(size_t size) {
 destSeq * newDestSeq(packet * p) {
 	destSeq * out = allocate(sizeof(destSeq));
 	memcpy(out->dest, p->dest, 4);
-	out->num = 0;
+	out->num = 1;
 	out->next = NULL;
 	return out;
 }
@@ -86,7 +86,7 @@ sequence * newSeqNumber(packet * p) {
 		memcpy(out->source, p->source, 4);
 		memcpy(out->dest, p->dest, 4);
 
-		out->seqNum = 1;
+		out->seqNum = 0;
 	} else if (p->type == TYPE_ACK) {
 		memcpy(out->dest, p->source, 4);
 		memcpy(out->source, p->dest, 4);
