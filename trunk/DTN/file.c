@@ -7,19 +7,21 @@ void * readData() {
 	char SRCIP[4],buffer[1024];
 	int a,b,c,d,bufferlen,len1;
 	printf("DATA RECV OPN: Enter IP address to receive the data packets from & the buffer length of data to be read from that IP: \n");
-	scanf("%d.%d.%d.%d %d", &a, &b, &c, &d,&bufferlen);
+	scanf("%d.%d.%d.%d", &a, &b, &c, &d);
 		SRCIP[0] = a;
 		SRCIP[1] = b;
 		SRCIP[2] = c;
-		SRCIP[3] = d;;
+		SRCIP[3] = d;
 
 	printf("DATA READ FROM SRCIP:\n");
-		while(bufferlen>0)
-		{		
-	        len1=DTN_datareceive(SRCIP,buffer,bufferlen);
+		while(1)
+		{
+//		printf("reached1");		
+	        len1=DTN_datareceive(SRCIP,buffer,1023);
+buffer[1023]='\0';
 		printf("%s",buffer);
 //		len1=strlen(buffer);
-		bufferlen=bufferlen-len1;
+//		bufferlen=bufferlen-len1;
 		}
 	}
 
@@ -61,6 +63,7 @@ int flag;
 //int bufferlen,len1,buffer_length,a,b,c,d;
 //	char DSTIP[4],SRCIP[4];
 flag=atoi(args[1]);
+createBundleLayer(args[2]);
 	pthread_t sender,receiver;
 
 	if(flag==1)
