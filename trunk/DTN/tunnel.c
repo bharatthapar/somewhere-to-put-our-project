@@ -86,6 +86,7 @@ void injectNetPacket(int iface, packet * p) {
 	char buf[MAX_DATA_SIZE];
 	while (1) {
 		int r = DTN_datareceive(NULL, buf, MAX_DATA_SIZE);
+		printf("Size rec %d\n", r);
 		write(dtn0, buf, r);
 	}
 }
