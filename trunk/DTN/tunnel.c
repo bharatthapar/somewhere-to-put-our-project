@@ -53,7 +53,7 @@ int tun_init(char * name) {
 	strncpy(intName, name, IFNAMSIZ-1);
 	return tun_alloc(intName, IFF_TUN | IFF_NO_PI);
 }
-
+int lock7 = 1;
 void getNetPacket(){
 	int r;
 	char buf9[MAX_DATA_SIZE];
@@ -86,7 +86,7 @@ void getNetPacket(){
 	//}
 }
 
-int lock7 = 1;
+
 
 void injectNetPacket(int iface, packet * p) {
 	char buf3[MAX_DATA_SIZE];
