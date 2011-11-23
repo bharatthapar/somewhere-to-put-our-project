@@ -70,7 +70,7 @@ void DTN_datasend(char *destip,char *fulldata, int len) {
 
 
 int minm(int a, int b) {
-	if(a>b) 
+	if(a<b) 
 		return a;
 	return b;
 } 
