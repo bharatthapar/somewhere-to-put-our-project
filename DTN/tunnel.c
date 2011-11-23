@@ -85,8 +85,8 @@ void getNetPacket(){
 void injectNetPacket(int iface, packet * p) {
 	char buf[MAX_DATA_SIZE];
 	while (1) {
-		DTN_datareceive(NULL, buf, MAX_DATA_SIZE);
-		write(iface, p->data, p->length - sizeof(packet) + MAX_DATA_SIZE);
+		int r = DTN_datareceive(NULL, buf, MAX_DATA_SIZE);
+		write(dtn0, buf, r);
 	}
 }
 
