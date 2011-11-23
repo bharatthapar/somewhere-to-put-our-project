@@ -53,17 +53,15 @@ int tun_init(char * name) {
 	strncpy(intName, name, IFNAMSIZ-1);
 	return tun_alloc(intName, IFF_TUN | IFF_NO_PI);
 }
-int lock7 = 1;
 void getNetPacket(){
 	int r;
 	char buf9[MAX_DATA_SIZE];
 	while (1) {
-		while (lock7==0);
-	lock7 = 0;
+
 		r = read(dtn0, buf9, MAX_DATA_SIZE);
 		printf("Sent %d\n", r);
 		DTN_datasend(&buf9[16], buf9, r);
-		lock7=1;
+
 	}
 	//IP packet
 	//if ((buf[0] & 0xf0) == 0x40) {
@@ -91,13 +89,9 @@ void getNetPacket(){
 void injectNetPacket(int iface, packet * p) {
 	char buf3[MAX_DATA_SIZE];
 	while (1) {
-	while (lock7==0);
-	lock7 = 0;
-	
 		int r = DTN_datareceive(NULL, buf3, MAX_DATA_SIZE);
 		printf("Size rec %d\n", r);
 		write(dtn0, buf3, r);
-		lock7 = 1;
 	}
 }
 
