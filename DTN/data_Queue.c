@@ -44,7 +44,7 @@ void print_all1() {
 	lock1=1;
 }
 
-
+int size = 0;
 
 void add_datapacketnode(packet *p1) {
 	//printf("ADDING!!\n");
@@ -57,6 +57,7 @@ void add_datapacketnode(packet *p1) {
 		roots->p=p1;
 		roots->next=NULL;
 		roots->marked = 0;
+		size++;
 	} else {
 		temp=roots;
 		while(temp!=NULL) {
@@ -74,6 +75,7 @@ void add_datapacketnode(packet *p1) {
 			last->p=p1;
 			last->next=NULL;
 			last->marked = 0;
+			size++;
 		}
 	}
 	lock1 = 1;
@@ -113,7 +115,7 @@ void deletenode(struct data_Queue *stop) {
 			}
 			temp2=temp;
 			temp=temp->next;
-			free(temp2->p);
+			//free(temp2->p);
 			//printf("free %d\n", temp);
 			free(temp2);
 			
@@ -137,6 +139,7 @@ packet * getOldestPacket(char * srcip) {
 			temp->marked=1;
 			lock1=1;
 			deletenode(temp);
+			size--;
 			return temp->p;
 		}
 		temp=temp->next;
@@ -144,3 +147,4 @@ packet * getOldestPacket(char * srcip) {
 	lock1=1;
 	return NULL;
 }
+

@@ -99,7 +99,7 @@ void packetArrival(packet * packet1) {
 				//memset(packet1,NULL,sizeof(packet));
 			free(packet1);
 		} else if(packet1->type == TYPE_DATA) {
-printf("NEW PACKET seq: %d\n", packet1->seq_num);
+printf("NEW PACKET ARRIVAL seq: %d\n", packet1->seq_num);
 		
 	data_handler(packet1);
 		} else if(packet1->type == TYPE_ACK) {
@@ -121,6 +121,8 @@ void *waitForPacket() {
 		packet *packet1;
 		packet1 = (packet *)malloc(sizeof(packet));
 		bytes_read = recvfrom(MainSocket,packet1,sizeof(packet),0,(struct sockaddr *)&client_addr, &addr_len);
+		//if (packet1->type != TYPE_BEACON)
+		//printf("BYTES READ %d\n", bytes_read);
 		packetArrival(packet1);
 	}
 }
@@ -170,6 +172,7 @@ void data_handler(packet *p) {
 		}
 		if(!memcmp(p->dest,configuration->IP,4) || takePacket==1) {//The received packet is destined for me.	
 			ack=deliverPacket(p);	//Get the ACK from the bundle layer
+			free(p);
 			if(ack!=NULL) {
 				isOld(ack);
 				add_packetnode(ack);
