@@ -35,6 +35,7 @@ packet * deliverPacket(packet * p) {
 
 
 void newPacket(char * dest, char * data, int len) {
+
 	//printf("MY bundle IP IS ");
 	//printIP(configuration->IP);
 	//printf("\n");
@@ -50,7 +51,8 @@ void newPacket(char * dest, char * data, int len) {
 	p->ttl = configuration->packetLife;
 	p->length = sizeof(packet) - MAX_DATA_SIZE + len;
 	addSequenceNumber(p);
-printf("NEW PACKET BEING SENT seq: %d\n", p->seq_num);
+	printf("NEW PACKET SEND seq: %d\n", p->seq_num);
+
 	//printf("packet size %d\n", p->length);
 	add_packetnode(p);
 }
@@ -59,7 +61,8 @@ printf("NEW PACKET BEING SENT seq: %d\n", p->seq_num);
 void DTN_datasend(char *destip,char *fulldata, int len) {
 	int num;
 	int i=0;;
-
+	if (len==0)
+		return;
 	num=(len/MAX_DATA_SIZE)+1;
 	while(i<num) {
 		int length = (i==num-1?len-i*MAX_DATA_SIZE:MAX_DATA_SIZE);
@@ -86,17 +89,8 @@ int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 		}
 	}
 	
-	//printf("%d is the min\n",minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
-	int i;
-	//printf("PACKET: ");
-	//for (i=0; i<84; i++)
-	//	printf("%d ", p->data[i]);
-	//printf("\n");
 	memcpy(buffer,p->data,minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
-	//printf("Buffer: ");
-	//for (i=0; i<84; i++)
-	//	printf("%d ", buffer[i]);
-	//printf("\n");
+
 	return minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen);;
 }
 

@@ -121,8 +121,6 @@ void *waitForPacket() {
 		packet *packet1;
 		packet1 = (packet *)malloc(sizeof(packet));
 		bytes_read = recvfrom(MainSocket,packet1,sizeof(packet),0,(struct sockaddr *)&client_addr, &addr_len);
-		//if (packet1->type != TYPE_BEACON)
-		//printf("BYTES READ %d\n", bytes_read);
 		packetArrival(packet1);
 	}
 }
@@ -172,7 +170,6 @@ void data_handler(packet *p) {
 		}
 		if(!memcmp(p->dest,configuration->IP,4) || takePacket==1) {//The received packet is destined for me.	
 			ack=deliverPacket(p);	//Get the ACK from the bundle layer
-			free(p);
 			if(ack!=NULL) {
 				isOld(ack);
 				add_packetnode(ack);
