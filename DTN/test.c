@@ -17,7 +17,8 @@ void * waitForData() {
 	printf("\n");
 	buffer[1023] = '\0';
 	while (1) {
-		DTN_datareceive(NULL, buffer, 1023);
+		int a = DTN_datareceive(NULL, buffer, 1023);
+		buffer[a] = '\0';
 		printf("Data received: %s\n", buffer);
 	}
 }

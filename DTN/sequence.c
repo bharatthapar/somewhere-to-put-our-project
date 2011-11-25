@@ -16,6 +16,8 @@ typedef struct localNum {
 	uint32_t num;
 	//For linked list
 	struct localNum * next;
+	//When this sequence number is no longer valid
+	time_t timeout;
 } destSeq;
 
 typedef struct seqHolder {
@@ -25,7 +27,7 @@ typedef struct seqHolder {
 	//The most recent sequence number seen (in an ACK)
 	uint32_t seqNum;
 	//When this sequence number is no longer valid
-	uint32_t timeout;
+	time_t timeout;
 	//For linked list
 	struct seqHolder * next;
 } sequence;
@@ -52,6 +54,8 @@ destSeq * newDestSeq(packet * p) {
 	destSeq * out = allocate(sizeof(destSeq));
 	memcpy(out->dest, p->dest, 4);
 	out->num = 0;
+	out->timeout = p->ttl + time(NULL);
+	printf("Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -65,7 +69,13 @@ destSeq * getLocalSeqNumber(packet * p) {
 		return localFirst;
 	} else {
 		destSeq * temp;
+		time_t tm = time(NULL);
 		for(temp = localFirst; temp != NULL; temp = temp->next) {
+		
+			//Check for timeout here
+			if (tm > temp->timeout)
+				temp->num = 0;
+		
 			if(memcmp(temp->dest, p->dest, 4) == 0) {
 				temp->num++;
 				return temp;
@@ -93,7 +103,8 @@ sequence * newSeqNumber(packet * p) {
 		
 		out->seqNum = p->seq_num - 1; 	
 	}
-	out->timeout = 0;
+	out->timeout = time(NULL) + p->ttl;
+	printf("(NSN) Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -106,11 +117,14 @@ sequence * getStoredSeqNumber(packet * p) {
 		return first;
 	} else {
 		sequence * temp;
+		time_t tm = time(NULL);
 		//Search the list for a record
 		for(temp = first; temp != NULL; temp = temp->next) {
 		
 			//Check for timeout here
-		
+			if (tm > temp->timeout)
+				temp->seqNum = 0;
+				
 			if ((p->type == TYPE_DATA && memcmp(temp->source, p->source, 4) == 0 && memcmp(temp->dest, p->dest, 4) == 0) ||
 					(p->type == TYPE_ACK && memcmp(temp->source, p->dest, 4) == 0 && memcmp(temp->dest, p->source, 4) == 0)) {
 				return temp;
@@ -137,6 +151,8 @@ int checkACKQueue(packet * p) {
 	s = getStoredSeqNumber(p);
 	if (p->seq_num > s->seqNum) {
 		s->seqNum = p->seq_num;
+		s->timeout = p->ttl + time(NULL);
+		printf("ACK time out at %d\n", s->timeout);
 		return NOT_OLD_PACKET;
 	} else
 		return OLD_PACKET;
@@ -156,6 +172,7 @@ int isOld(packet * p) {
 
 void addSequenceNumber(packet * p) {
 	destSeq * temp = getLocalSeqNumber(p);
+	temp->timeout = time(NULL) + p->ttl;
 	p->seq_num = temp->num;
 }
 
