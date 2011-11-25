@@ -45,8 +45,20 @@ void print_all1() {
 }
 
 
+void clearSeqNums(packet * p1) {
+	struct data_Queue * temp=roots;
+	while(temp!=NULL) {
+		if(memcmp((temp->p)->source,p1->source,4)==0 && memcmp((temp->p)->dest,p1->dest,4)==0 && p1->type==(temp->p)->type ) {
+			temp->p->seq_num = 0;
+			printf("SET TO ZERO!!!\n");
+		}
+		temp=temp->next;
+	}
+}
 
-void add_datapacketnode(packet *p1, int storedSeq) {
+
+
+void add_datapacketnode(packet *p1) {
 	//printf("ADDING!!\n");
 	while(!lock1);
 	lock1 = 0;
@@ -60,7 +72,7 @@ void add_datapacketnode(packet *p1, int storedSeq) {
 	} else {
 		temp=roots;
 		while(temp!=NULL) {
-			if(storedSeq > 0 && memcmp((temp->p)->source,p1->source,4)==0 && memcmp((temp->p)->dest,p1->dest,4)==0 && (temp->p)->seq_num==p1->seq_num && p1->type==(temp->p)->type ) {
+			if(memcmp((temp->p)->source,p1->source,4)==0 && memcmp((temp->p)->dest,p1->dest,4)==0 && (temp->p)->seq_num==p1->seq_num && p1->type==(temp->p)->type ) {
 				dup=1;
 				break;
 			}
@@ -86,7 +98,7 @@ int chk_seq(packet *p){
 	struct data_Queue *temp=roots;
 	while(temp!=NULL){
 		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->p->dest,4)==0)){
-			//if(temp->p->seq_num > high) 			
+			if(temp->p->seq_num > high) 			
 				high=temp->p->seq_num;	
 		}
 		temp=temp->next;

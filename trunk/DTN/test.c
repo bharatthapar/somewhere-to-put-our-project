@@ -17,6 +17,8 @@ void * waitForData() {
 	printf("\n");
 	buffer[1023] = '\0';
 	while (1) {
+	char buffer[1024];
+	gets(buffer);
 		int a = DTN_datareceive(NULL, buffer, 1023);
 		buffer[a] = '\0';
 		printf("Data received: %s\n", buffer);
@@ -43,16 +45,16 @@ int main(int argv, char * args[]) {
 	pthread_create(&receiver,NULL,waitForData,NULL);
 	char buffer[1024];
 	while (1) {
-		gets(buffer);
-		sscanf(buffer, "%d.%d.%d.%d", &a, &b, &c, &d);
-		IP[0] = a;
-		IP[1] = b;
-		IP[2] = c;
-		IP[3] = d;
-		gets(buffer);
-		printf("Sending to ");
-		printIP(IP);
-		printf(": %s\n", buffer);
-		DTN_datasend(IP, buffer, strlen(buffer));
+		//gets(buffer);
+		//sscanf(buffer, "%d.%d.%d.%d", &a, &b, &c, &d);
+		//IP[0] = a;
+		//IP[1] = b;
+		//IP[2] = c;
+		//IP[3] = d;
+		//gets(buffer);
+		//printf("Sending to ");
+		//printIP(IP);
+		//printf(": %s\n", buffer);
+		//DTN_datasend(IP, buffer, strlen(buffer));
 	}
 }
