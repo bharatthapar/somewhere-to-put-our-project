@@ -46,7 +46,7 @@ void print_all1() {
 
 
 
-void add_datapacketnode(packet *p1) {
+void add_datapacketnode(packet *p1, int storedSeq) {
 	//printf("ADDING!!\n");
 	while(!lock1);
 	lock1 = 0;
@@ -60,7 +60,7 @@ void add_datapacketnode(packet *p1) {
 	} else {
 		temp=roots;
 		while(temp!=NULL) {
-			if(memcmp((temp->p)->source,p1->source,4)==0 && memcmp((temp->p)->dest,p1->dest,4)==0 && (temp->p)->seq_num==p1->seq_num && p1->type==(temp->p)->type ) {
+			if(storedSeq > 0 && memcmp((temp->p)->source,p1->source,4)==0 && memcmp((temp->p)->dest,p1->dest,4)==0 && (temp->p)->seq_num==p1->seq_num && p1->type==(temp->p)->type ) {
 				dup=1;
 				break;
 			}
@@ -86,12 +86,13 @@ int chk_seq(packet *p){
 	struct data_Queue *temp=roots;
 	while(temp!=NULL){
 		if((memcmp(p->source,temp->p->source,4)==0)&&(memcmp(p->dest,temp->p->dest,4)==0)){
-			if(temp->p->seq_num > high) 			
+			//if(temp->p->seq_num > high) 			
 				high=temp->p->seq_num;	
 		}
 		temp=temp->next;
 	}
 	lock1=1;
+	printf("THE HIGH IS %d\n", high);
 	return high;
 }
 

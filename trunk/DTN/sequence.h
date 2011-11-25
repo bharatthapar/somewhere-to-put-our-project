@@ -6,14 +6,26 @@
 
 #include "packet.h"
 #include <stdint.h>
-
-//Lifetime of sequence numbers in seconds, must be greater than lifetime of packet
-#define SEQUENCE_TIMEOUT 60
+#include <time.h>
 
 #define KEEP_PACKET 1
 #define DELETE_PACKET 0
 #define NOT_OLD_PACKET 0
 #define OLD_PACKET 1
+
+
+typedef struct seqHolder {
+	//Source and destination (based on data packet)
+	char source[4];
+	char dest[4];
+	//The most recent sequence number seen (in an ACK)
+	uint32_t seqNum;
+	//When this sequence number is no longer valid
+	time_t timeout;
+	//For linked list
+	struct seqHolder * next;
+} sequence;
+
 
 //Tells whether this is an old packet or if it MAY be new
 //Returns OLD_PACKET if it is an old packet, returns NOT_OLD_PACKET if it may be new
@@ -25,5 +37,9 @@ void addSequenceNumber(packet * p);
 //Tells whether you should keep the packet p based on the given ACK
 //Returns KEEP_PACKET if you should keep, DELETE_PACKET if should delete
 int keepPacket(packet * ACK, packet * p);
+
+sequence * getStoredSeqNumber(packet * p);
+
+
 
 #endif

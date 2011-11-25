@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "dataQueue.h"
+#include "sequence.h"
 #include "config.h"
 #include <unistd.h>
 
@@ -15,8 +16,9 @@ extern config * configuration;
 packet * deliverPacket(packet * p) {
 	packet * ack = NULL;
 	int seq = chk_seq(p);
-	if(seq == p->seq_num-1)	{
-		add_datapacketnode(p);
+	int storedSeq = getStoredSeqNumber(p)->seqNum;
+	if(seq == p->seq_num-1 || storedSeq == 0)	{
+		add_datapacketnode(p, storedSeq);
 		ack = malloc(sizeof(packet));
 		memcpy(ack->dest, p->source, 4);
 		memcpy(ack->source, p->dest, 4);
