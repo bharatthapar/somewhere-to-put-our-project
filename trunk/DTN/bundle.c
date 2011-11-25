@@ -15,7 +15,7 @@ extern config * configuration;
 packet * deliverPacket(packet * p) {
 	packet * ack = NULL;
 	int seq = chk_seq(p);
-	if(seq == 0 || seq == p->seq_num-1)	{
+	if(seq == p->seq_num-1)	{
 		add_datapacketnode(p);
 		ack = malloc(sizeof(packet));
 		memcpy(ack->dest, p->source, 4);
@@ -50,7 +50,8 @@ void newPacket(char * dest, char * data, int len) {
 	p->ttl = configuration->packetLife;
 	p->length = sizeof(packet) - MAX_DATA_SIZE + len;
 	addSequenceNumber(p);
-	printf("packet size %d\n", p->length);
+printf("NEW PACKET BEING SENT seq: %d\n", p->seq_num);
+	//printf("packet size %d\n", p->length);
 	add_packetnode(p);
 }
 
@@ -85,8 +86,17 @@ int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 		}
 	}
 	
+	//printf("%d is the min\n",minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
+	int i;
+	//printf("PACKET: ");
+	//for (i=0; i<84; i++)
+	//	printf("%d ", p->data[i]);
+	//printf("\n");
 	memcpy(buffer,p->data,minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
-
+	//printf("Buffer: ");
+	//for (i=0; i<84; i++)
+	//	printf("%d ", buffer[i]);
+	//printf("\n");
 	return minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen);;
 }
 
