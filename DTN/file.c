@@ -2,26 +2,31 @@
 #include<stdlib.h>
 #include<string.h>
 #include"bundle.h"
+#include"dataQueue.h"
 
 void * readData() {
-	char SRCIP[4],buffer[1024];
-	int a,b,c,d,bufferlen,len1;
+	char SRCIP[4],buffer[1500];
+	int i1=0,a,b,c,d,bufferlen,len1;
 	printf("DATA RECV OPN: Enter IP address to receive the data packets from & the buffer length of data to be read from that IP: \n");
 	scanf("%d.%d.%d.%d", &a, &b, &c, &d);
 		SRCIP[0] = a;
 		SRCIP[1] = b;
 		SRCIP[2] = c;
 		SRCIP[3] = d;
-
+//print_all1();
 	printf("DATA READ FROM SRCIP:\n");
 		while(1)
 		{
-//		printf("reached1");		
-	        len1=DTN_datareceive(SRCIP,buffer,1023);
-buffer[1023]='\0';
-		printf("%s",buffer);
+
+for(i1=0;i1<1500;i1++)
+{
+buffer[i1]='\0';
+}
+	        len1=DTN_datareceive(SRCIP,buffer,1500);
+
 //		len1=strlen(buffer);
-//		bufferlen=bufferlen-len1;
+//		bufferlen=bufferlen-len1;*/
+		printf("%s",buffer);
 		}
 	}
 
