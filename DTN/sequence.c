@@ -20,18 +20,6 @@ typedef struct localNum {
 	time_t timeout;
 } destSeq;
 
-typedef struct seqHolder {
-	//Source and destination (based on data packet)
-	char source[4];
-	char dest[4];
-	//The most recent sequence number seen (in an ACK)
-	uint32_t seqNum;
-	//When this sequence number is no longer valid
-	time_t timeout;
-	//For linked list
-	struct seqHolder * next;
-} sequence;
-
 //Head of the linked list for others' sequence numbers
 sequence * first;
 //Tail of the linked list for others' sequence numbers
@@ -152,7 +140,7 @@ int checkACKQueue(packet * p) {
 	if (p->seq_num > s->seqNum) {
 		s->seqNum = p->seq_num;
 		s->timeout = p->ttl + time(NULL);
-		printf("ACK time out at %d\n", s->timeout);
+		printf("ACK time out at %d current time is %d\n", s->timeout, time(NULL));
 		return NOT_OLD_PACKET;
 	} else
 		return OLD_PACKET;
