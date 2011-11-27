@@ -24,7 +24,7 @@ void print_all1() {
 		//printIP(head3->p->dest);
 		//printf("\n");
 		//printf("sequence: %d",head3->p->seq_num);
-		//printf(" %s\n",head3->p->data);
+//		printf(" %s\n",head3->p->data);
 		//printf("---End Packet---\n");
 		if (head3->p->type == TYPE_DATA)
 			data++;

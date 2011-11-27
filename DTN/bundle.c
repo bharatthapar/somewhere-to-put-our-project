@@ -55,7 +55,12 @@ void newPacket(char * dest, char * data, int len) {
 	p->ttl = configuration->packetLife;
 	p->length = sizeof(packet) - MAX_DATA_SIZE + len;
 	addSequenceNumber(p);
-	printf("NEW PACKET SEND seq: %d\n", p->seq_num);
+	if(p->type==TYPE_BEACON)
+	printf("NEW BEACON PACKET SEND seq: %d\n", p->seq_num);
+	if(p->type==TYPE_DATA)
+	printf("NEW DATA PACKET SEND seq: %d\n", p->seq_num);
+	if(p->type==TYPE_ACK)
+	printf("NEW ACK PACKET SEND seq: %d\n", p->seq_num);
 
 	//printf("packet size %d\n", p->length);
 	add_packetnode(p);
