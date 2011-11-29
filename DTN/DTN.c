@@ -29,6 +29,7 @@ char net[4];
 char mask[4];
 config * configuration;
 
+/* Function to set the gateway IP and netmask from config file */
 void setGateway(char * ip, char * netMask) {
 	gateway = 1;
 	memcpy(mask, netMask, 4);
@@ -41,6 +42,7 @@ void setGateway(char * ip, char * netMask) {
 	printf("\n");
 }
 
+/*Function for starting the receiver thread and setting the timer ALARM for Beacon sender */
 void * oldMain() {
 	struct itimerval it_val;	/* for setting itimer */
    	pthread_t sender,receiver;
@@ -61,7 +63,7 @@ void * oldMain() {
 	return 0;
 }
 
-
+/* Function to initialize the self parameters for the connection. These parameters are passed from a config file. */
 int initialize(config * c) {
 	int broadcast = 1;
 	configuration =  c;
@@ -92,6 +94,7 @@ int initialize(config * c) {
 	return 0;
 }
 
+/* Function to handle any incoming packet on the network */
 void packetArrival(packet * packet1) {
 	if(memcmp(packet1->source, configuration->IP, 4)) {	
 		if(packet1->type == TYPE_BEACON) {
@@ -108,6 +111,7 @@ void packetArrival(packet * packet1) {
 	}
 }
 
+/* Function called to by the reciving thread to start the reception */
 void *waitForPacket() {
 	int bytes_read;		
 	int addr_len = sizeof(struct sockaddr);		
@@ -125,6 +129,8 @@ void *waitForPacket() {
 	}
 }
 
+
+/* Function called to by other functions to send the packets */
 void sendPacket(struct Apacket *packet, char *ip) {
 	server_addr.sin_addr.s_addr = inet_addr(ip);
 	server_addr.sin_port = htons(8000);
@@ -132,6 +138,7 @@ void sendPacket(struct Apacket *packet, char *ip) {
 	sendto(MainSocket, (char *)packet, packet->length, 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr));
 }
 
+/* Function called by timer to send beacons periodically */
 void send_beacon() {
 	//printf("Beacon\n");
 	packet * beacon = (packet *)malloc(sizeof(packet));
@@ -153,6 +160,7 @@ void send_beacon() {
 	free(beacon);
 }
 
+/* Function called by packetArrival on receiving a data packet */
 void data_handler(packet *p) {
 	packet *ack;
 	int takePacket = 0;
@@ -182,6 +190,7 @@ void data_handler(packet *p) {
 	return;
 }
 
+/* Function called by packetArrival on receiving a ack packet */
 void ack_handler(packet *p) {
 	if(isOld(p)==NOT_OLD_PACKET) {
 		//if(memcmp(p->dest,configuration->IP,4)!=0) {
