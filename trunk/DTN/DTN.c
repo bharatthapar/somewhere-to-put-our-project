@@ -99,7 +99,7 @@ void packetArrival(packet * packet1) {
 				//memset(packet1,NULL,sizeof(packet));
 			free(packet1);
 		} else if(packet1->type == TYPE_DATA) {
-printf("NEW PACKET ARRIVAL seq: %d type: %d\n", packet1->seq_num, packet1->type);
+//printf("NEW PACKET ARRIVAL seq: %d type: %d\n", packet1->seq_num, packet1->type);
 		
 	data_handler(packet1);
 		} else if(packet1->type == TYPE_ACK) {
