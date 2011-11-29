@@ -110,7 +110,7 @@ int main(int argc, char * args[]) {
 	system(buf7);
 	pthread_t sender,receiver;
 	pthread_create(&receiver,NULL,injectNetPacket,NULL);
-	pthread_create(&receiver,NULL,getNetPacket,NULL);
+	pthread_create(&sender,NULL,getNetPacket,NULL);
 	
 	while(1);
 
