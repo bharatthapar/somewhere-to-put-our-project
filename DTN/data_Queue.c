@@ -104,7 +104,7 @@ int chk_seq(packet *p){
 		temp=temp->next;
 	}
 	lock1=1;
-	printf("THE HIGH IS %d\n", high);
+	//printf("THE HIGH IS %d\n", high);
 	return high;
 }
 

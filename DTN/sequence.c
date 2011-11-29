@@ -43,7 +43,7 @@ destSeq * newDestSeq(packet * p) {
 	memcpy(out->dest, p->dest, 4);
 	out->num = 0;
 	out->timeout = p->ttl + time(NULL);
-	printf("Seq will timeout at %d\n", out->timeout);
+	//printf("Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -92,7 +92,7 @@ sequence * newSeqNumber(packet * p) {
 		out->seqNum = p->seq_num - 1; 	
 	}
 	out->timeout = time(NULL) + p->ttl;
-	printf("(NSN) Seq will timeout at %d\n", out->timeout);
+	//printf("(NSN) Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -140,7 +140,7 @@ int checkACKQueue(packet * p) {
 	if (p->seq_num > s->seqNum) {
 		s->seqNum = p->seq_num;
 		s->timeout = p->ttl + time(NULL);
-		printf("ACK time out at %d current time is %d\n", s->timeout, time(NULL));
+		//printf("ACK time out at %d current time is %d\n", s->timeout, time(NULL));
 		return NOT_OLD_PACKET;
 	} else
 		return OLD_PACKET;

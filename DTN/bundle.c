@@ -55,7 +55,7 @@ void newPacket(char * dest, char * data, int len) {
 	p->ttl = configuration->packetLife;
 	p->length = sizeof(packet) - MAX_DATA_SIZE + len;
 	addSequenceNumber(p);
-	printf("NEW PACKET SEND seq: %d\n", p->seq_num);
+	//printf("NEW PACKET SEND seq: %d\n", p->seq_num);
 	
 
 	//printf("packet size %d\n", p->length);
