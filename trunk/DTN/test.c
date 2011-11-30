@@ -1,27 +1,33 @@
 #include <stdio.h>
 #include "bundle.h"
+#include "packet.h"
+
 #include <pthread.h>
 #include <string.h>
 
 char listenTo[4];
 char * temp;
-//void printIP(char * ip) {
-//	printf("%d.%d.%d.%d", ip[0]<0?ip[0]+256:ip[0], ip[1]<0?ip[1]+256:ip[1], ip[2]<0?ip[2]+256:ip[2], ip[3]<0?ip[3]+256:ip[3]);
-//}
+void printIPString(char * string, char * ip) {
+	sprintf(string, "%d.%d.%d.%d", ip[0]<0?ip[0]+256:ip[0], ip[1]<0?ip[1]+256:ip[1], ip[2]<0?ip[2]+256:ip[2], ip[3]<0?ip[3]+256:ip[3]);
+}
 
 
 void * waitForData() {
-	char buffer[1024];
+	char buffer[1400];
+	char ip[20];
 	printf("Listening for data from anyone");
 	//printIP(listenTo);
 	printf("\n");
-	buffer[1023] = '\0';
+	buffer[1399] = '\0';
+	
 	while (1) {
-	char buffer[1024];
+	
 	//gets(buffer);
 		int a = DTN_datareceive(NULL, buffer, 1023);
+		packet * p = getLastPacket();
+		printIPString(ip, p->source);
 		buffer[a] = '\0';
-		printf("From %s: %s\n", temp, buffer);
+		printf("From %s: %s\n", ip, buffer);
 	}
 }
 

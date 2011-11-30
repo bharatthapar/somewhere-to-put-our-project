@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 extern config * configuration;
-
+packet * lastPacket = NULL;
 
 packet * deliverPacket(packet * p) {
 	packet * ack = NULL;
@@ -89,6 +89,7 @@ int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 	
 	while(p == NULL) {
 		p = getOldestPacket(srcip);
+		lastPacket = p;
 		if (p == NULL) {
 			sleep(configuration->beaconInterval/2000);
 		}
@@ -97,6 +98,10 @@ int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 	memcpy(buffer,p->data,minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen));
 
 	return minm(p->length - sizeof(packet) + MAX_DATA_SIZE,bufferlen);;
+}
+
+packet * getLastPacket() {
+	return lastPacket;
 }
 
 int createBundleLayer(char * configFile) {
