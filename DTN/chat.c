@@ -6,7 +6,7 @@
 #include <string.h>
 
 char listenTo[4];
-char * temp;
+
 void printIPString(char * string, char * ip) {
 	sprintf(string, "%d.%d.%d.%d", ip[0]<0?ip[0]+256:ip[0], ip[1]<0?ip[1]+256:ip[1], ip[2]<0?ip[2]+256:ip[2], ip[3]<0?ip[3]+256:ip[3]);
 }
@@ -34,10 +34,10 @@ void * waitForData() {
 
 
 int main(int argv, char * args[]) {
-system("clear");
-temp = args[1];
+	system("clear");
+
 	//initialize(interface);
-	createBundleLayer(args[2]);
+	createBundleLayer(args[1]);
 
 
 	int a,b,c,d;
