@@ -29,6 +29,7 @@ destSeq * localFirst;
 //Tail of the linked list for local sequence numbers
 destSeq * localLast;
 
+//Allocates memory
 void * allocate(size_t size) {
 	void * out = malloc(size);
 	if (out == NULL) {
@@ -38,6 +39,7 @@ void * allocate(size_t size) {
 	return out;
 }
 
+//Used to create a new record for a locally generated flow
 destSeq * newDestSeq(packet * p) {
 	destSeq * out = allocate(sizeof(destSeq));
 	memcpy(out->dest, p->dest, 4);
@@ -48,6 +50,7 @@ destSeq * newDestSeq(packet * p) {
 	return out;
 }
 
+//Gets the last used sequence number for the locally generated flow of the given packet
 destSeq * getLocalSeqNumber(packet * p) {
 	//Nothing in list, must create new
 	if (localFirst == NULL) {
@@ -78,6 +81,7 @@ destSeq * getLocalSeqNumber(packet * p) {
 
 }
 
+//Called the first time a flow is encountered to store a new sequence number for it
 sequence * newSeqNumber(packet * p) {
 	sequence * out = allocate(sizeof(sequence));
 	if (p->type == TYPE_DATA) {
@@ -97,6 +101,7 @@ sequence * newSeqNumber(packet * p) {
 	return out;
 }
 
+//Returns the latest known sequence number for the flow of the given packet
 sequence * getStoredSeqNumber(packet * p) {
 	//No records in list, create a new one
 	if (first == NULL) {
@@ -109,7 +114,7 @@ sequence * getStoredSeqNumber(packet * p) {
 		//Search the list for a record
 		for(temp = first; temp != NULL; temp = temp->next) {
 		
-			//Check for timeout here
+			//Check for timeout
 			if (tm > temp->timeout)
 				temp->seqNum = 0;
 				
@@ -125,6 +130,7 @@ sequence * getStoredSeqNumber(packet * p) {
 	}
 }
 
+//Determines whether a data packet is old or possibly new
 int checkDataQueue(packet * p) {
 	sequence * s;
 	s = getStoredSeqNumber(p);
@@ -134,6 +140,7 @@ int checkDataQueue(packet * p) {
 		return OLD_PACKET;
 }
 
+//Determines whether an ACK packet is old or possibly new
 int checkACKQueue(packet * p) {
 	sequence * s;
 	s = getStoredSeqNumber(p);
@@ -146,6 +153,8 @@ int checkACKQueue(packet * p) {
 		return OLD_PACKET;
 }
 
+//Tells whether this is an old packet or if it MAY be new
+//Returns OLD_PACKET if it is an old packet, returns NOT_OLD_PACKET if it may be new
 int isOld(packet * p) {
 	switch (p->type) {
 		case TYPE_ACK:
@@ -158,12 +167,15 @@ int isOld(packet * p) {
 	return OLD_PACKET;
 }
 
+//Adds the proper sequence number to the given packet (locally generated)
 void addSequenceNumber(packet * p) {
 	destSeq * temp = getLocalSeqNumber(p);
 	temp->timeout = time(NULL) + p->ttl;
 	p->seq_num = temp->num;
 }
 
+//Tells whether you should keep the packet p based on the given ACK
+//Returns KEEP_PACKET if you should keep, DELETE_PACKET if should delete
 int keepPacket(packet * ACK, packet * p) {
 	if (ACK->type != TYPE_ACK) 
 		return KEEP_PACKET;
