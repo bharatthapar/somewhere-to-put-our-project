@@ -51,13 +51,14 @@ int main(int argv, char * args[]) {
 	pthread_create(&receiver,NULL,waitForData,NULL);
 	char buffer[1024];
 	while (1) {
-		gets(buffer);
-		sscanf(buffer, "%d.%d.%d.%d", &a, &b, &c, &d);
+		//gets(buffer);
+		scanf("%d.%d.%d.%d", &a, &b, &c, &d);
 		IP[0] = a;
 		IP[1] = b;
 		IP[2] = c;
 		IP[3] = d;
-		gets(buffer);
+		scanf("%s", buffer);
+		//gets(buffer);
 		printf("Sending to ");
 		printIP(IP);
 		printf(": %s\n", buffer);
