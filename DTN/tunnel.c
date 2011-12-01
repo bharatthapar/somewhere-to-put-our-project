@@ -108,6 +108,9 @@ int main(int argc, char * args[]) {
 	char buf7[200];
 	sprintf(buf7, "ifconfig %s %d.%d.%d.%d/24 up mtu %d",args[1] , configuration->IP[0]>=0?configuration->IP[0]:configuration->IP[0]+256, configuration->IP[1]>=0?configuration->IP[1]:configuration->IP[1]+256, configuration->IP[2]>=0?configuration->IP[2]:configuration->IP[2]+256, configuration->IP[3]>=0?configuration->IP[3]:configuration->IP[3]+256, MAX_DATA_SIZE);
 	system(buf7);
+	sprintf(buf7, "tc qdisc add dev %s root handle 1: cbq avpkt 1000 bandwidth 250kbit", args[1]);
+	system(buf7);
+	
 	pthread_t sender,receiver;
 	pthread_create(&receiver,NULL,injectNetPacket,NULL);
 	pthread_create(&sender,NULL,getNetPacket,NULL);

@@ -91,6 +91,9 @@ int initialize(config * c) {
 	printf("My IP is: ");
 	printIP(configuration->IP);
 	printf("\n");
+	if (configuration->gatewayMode == GATEWAY_ACCEPT) {
+		setGateway(configuration->IP, configuration->mask);
+	}
 	return 0;
 }
 
