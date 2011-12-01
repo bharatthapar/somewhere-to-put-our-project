@@ -59,12 +59,12 @@ void getNetPacket(){
 	while (1) {
 
 		r = read(dtn0, buf9, MAX_DATA_SIZE);
-		printf("Sent %d\n", r);
-		printf("Sending :");
+		//printf("Sent %d\n", r);
+		//printf("Sending :");
 		int i;
-		for (i=0; i<84; i++)
-			printf("%d ", buf9[i]);
-		printf("\n");
+		//for (i=0; i<84; i++)
+			//printf("%d ", buf9[i]);
+		//printf("\n");
 		DTN_datasend(&buf9[16], buf9, r);
 
 	}
@@ -95,7 +95,7 @@ void injectNetPacket(int iface, packet * p) {
 	char buf3[MAX_DATA_SIZE];
 	while (1) {
 		int r = DTN_datareceive(NULL, buf3, MAX_DATA_SIZE);
-		printf("Size rec %d\n", r);
+		//printf("Size rec %d\n", r);
 		write(dtn0, buf3, r);
 	}
 }

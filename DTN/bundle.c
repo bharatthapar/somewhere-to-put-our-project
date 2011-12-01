@@ -19,7 +19,7 @@ packet * deliverPacket(packet * p) {
 	int storedSeq = getStoredSeqNumber(p)->seqNum;
 	if (storedSeq == 0)
 		clearSeqNums(p);
-	if(seq == p->seq_num-1 || storedSeq == 0)	{
+	if((storedSeq != 0 && seq == p->seq_num-1) || (storedSeq == 0 && p->seq_num == 1))	{
 		add_datapacketnode(p);
 		ack = malloc(sizeof(packet));
 		memcpy(ack->dest, p->source, 4);
