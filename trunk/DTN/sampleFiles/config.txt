@@ -1,0 +1,22 @@
+#Bundle Address
+192.168.7.23
+
+#Bundle Netmask
+255.255.255.0
+
+#Port
+8000
+
+#Beacon Addresses
+152.14.244.129
+#End Broadcast Addresses
+
+#Gateway Mode
+Off
+
+#Packet Life
+1000
+
+#Beacon Interval
+5000
+

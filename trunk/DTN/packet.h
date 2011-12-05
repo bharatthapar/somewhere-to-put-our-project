@@ -1,18 +1,18 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#include<inttypes.h>
+#include <inttypes.h>
 
-
-/* Maximum size of data chunk that can be sent in a packet */
-
+//Maximum amount of data that a packet can contain
 #define MAX_DATA_SIZE		1400
+
 #define TYPE_BEACON			1
 #define TYPE_DATA			2
 #define TYPE_ACK			3
-#define DEFAULT_TTL 		100
+
 #pragma pack(push, 1)
 
+//Structure to store a complete packet
 typedef struct Apacket {
 	uint8_t  type;
 	uint32_t length;
@@ -22,5 +22,6 @@ typedef struct Apacket {
 	uint32_t ttl;
 	char data[MAX_DATA_SIZE];
 } packet;
+
 #pragma pack(pop)
 #endif
