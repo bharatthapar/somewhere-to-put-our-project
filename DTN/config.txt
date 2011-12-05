@@ -1,5 +1,5 @@
 #Bundle Address
-192.168.7.7
+192.168.7.23
 
 #Bundle Netmask
 255.255.255.0
@@ -8,16 +8,14 @@
 8000
 
 #Broadcast Addresses
-10.10.10.255
-192.168.7.255
-192.168.1.255
+152.14.244.129
 #End Broadcast Addresses
 
 #Gateway Mode
 Off
 
 #Packet Life
-100
+1000
 
 #Beacon Interval
 5000

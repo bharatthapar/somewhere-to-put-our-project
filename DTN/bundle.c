@@ -13,13 +13,15 @@
 extern config * configuration;
 packet * lastPacket = NULL;
 
+//function to create an ACK packet by the bundle layer
 packet * deliverPacket(packet * p) {
 	packet * ack = NULL;
 	int seq = chk_seq(p);
 	int storedSeq = getStoredSeqNumber(p)->seqNum;
 	if (storedSeq == 0)
 		clearSeqNums(p);
-	if((storedSeq != 0 && seq == p->seq_num-1) || (storedSeq == 0 && p->seq_num == 1))	{
+	//if((storedSeq != 0 && seq == p->seq_num-1) || (storedSeq == 0 && p->seq_num == 1))	{
+	if(storedSeq == 0 || seq == p->seq_num-1)	{
 		add_datapacketnode(p);
 		ack = malloc(sizeof(packet));
 		memcpy(ack->dest, p->source, 4);
@@ -37,7 +39,7 @@ packet * deliverPacket(packet * p) {
 }
 
 
-
+//function to create a new data Packet by the bundle layer
 void newPacket(char * dest, char * data, int len) {
 
 	//printf("MY bundle IP IS ");
@@ -62,7 +64,7 @@ void newPacket(char * dest, char * data, int len) {
 	add_packetnode(p);
 }
 
-
+//DTN_datasend: api functonality similar to socket sendto() function to send data to the bundle layer 
 void DTN_datasend(char *destip,char *fulldata, int len) {
 	int num;
 	int i=0;;
@@ -84,6 +86,7 @@ int minm(int a, int b) {
 	return b;
 } 
 
+//DTN_datareceive: api functonality similar to socket recvfrom() function to recieve data from the bundle layer 
 int DTN_datareceive(char *srcip,char *buffer,int bufferlen) {
 	packet * p = NULL;
 	
@@ -104,6 +107,7 @@ packet * getLastPacket() {
 	return lastPacket;
 }
 
+//function to create the bundle layer based on configurations the configFile
 int createBundleLayer(char * configFile) {
 	config * c = getConfiguration(configFile);
 	initialize(c);

@@ -6,6 +6,7 @@
 #include<time.h>
 time_t time_current;
 
+//dataQueue structure at each node containing all the packets for each flow receieved by the node as the final destination 
 typedef struct data_Queue {
 	packet *p;
 	struct data_Queue *next;

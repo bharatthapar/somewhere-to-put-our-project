@@ -8,6 +8,8 @@
 
 queue *root;
 int lock = 1;
+
+//function to add a new node containing the new packet in the main queue structure at the node
 void add_packetnode(packet *p1) {
 	while(!lock);
 	lock = 0;
@@ -45,6 +47,7 @@ void printIP(char * ip) {
 	printf("%d.%d.%d.%d", ip[0]<0?ip[0]+256:ip[0], ip[1]<0?ip[1]+256:ip[1], ip[2]<0?ip[2]+256:ip[2], ip[3]<0?ip[3]+256:ip[3]);
 }
 
+//function to display all the packets in the main queue structure at the node
 void print_all() {
 return;
 	while(!lock);
@@ -67,6 +70,7 @@ return;
 	lock=1;
 }
 
+//function to delete the packets from the queue structure that have been set marked as to be deleted 
 void delete_marked() {
 	queue * prev = NULL;
 	queue * temp2;
@@ -89,6 +93,7 @@ void delete_marked() {
 	}
 }
 
+//function to run through the queue structure and send all the packets unicast to the IP given by serverip
 void send_all(char *serverip) {
 	while(!lock);
 	lock = 0;
@@ -108,6 +113,7 @@ void send_all(char *serverip) {
 	lock = 1;
 }
 
+//function to mark a node in the main queue structure to be deleted if the packet therein is to be deleted
 void delete_packetnode(packet *p1) {
 	while(!lock);
 	lock = 0;

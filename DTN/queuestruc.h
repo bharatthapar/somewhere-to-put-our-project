@@ -6,6 +6,7 @@
 #include<time.h>
 time_t time_current;
 
+//main queue structure at each node containing all the packets receieved or transmitted by the node
 typedef struct dataqueue {
 	packet *p;
 	struct dataqueue *next;
@@ -13,7 +14,7 @@ typedef struct dataqueue {
 	int marked;
 } queue;
 
-
+//functionalites supported on the main queue strcuture
 void add_packetnode(struct Apacket *packet);
 void send_all(char *ip);
 void send_packetnode(struct Apacket *packet,char*ip);
