@@ -15,6 +15,7 @@
 #include<sys/time.h>
 #include<stdlib.h>
 #include<sys/ioctl.h>
+
 #include"packet.h"
 #include"queuestruc.h"
 #include"sequence.h"
@@ -71,7 +72,7 @@ int initialize(config * c) {
 	char host[100];
 	gethostname(host,sizeof(host));	
 	struct hostent *name=gethostbyname(host);
-	MainSocket = socket(AF_INET,SOCK_DGRAM,0);
+	MainSocket = socket(AF_INET,SOCK_DGRAM,0);// use AF_INET to represent the address family INET for Internet sockets, meaning the IPv4 protocol 
 	if(MainSocket == -1) {
 		perror("Socket");
 		exit(1);
@@ -84,6 +85,7 @@ int initialize(config * c) {
 	server_addr.sin_family = AF_INET;
    	server_addr.sin_port = htons(configuration->port);
    	server_addr.sin_addr.s_addr = INADDR_ANY;
+//For example, suppose that a host has interfaces 0, 1 and 2. If a UDP socket on this host is bound using INADDR_ANY and udp port 8000, then the socket will receive all packets for port 8000 that arrive on interfaces 0, 1, or 2.
    	bzero(&(server_addr.sin_zero),8);
 			
 	pthread_t run;

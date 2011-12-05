@@ -5,6 +5,7 @@
 struct data_Queue *roots = NULL;
 int lock1=1;
 
+
 void print_all1() {
 	while(!lock1);
 	lock1 = 0;
@@ -44,7 +45,7 @@ void print_all1() {
 	lock1=1;
 }
 
-
+//function to clear sequence numbers for a flow in the dataQueue
 void clearSeqNums(packet * p1) {
 	struct data_Queue * temp=roots;
 	while(temp!=NULL) {
@@ -58,6 +59,7 @@ void clearSeqNums(packet * p1) {
 
 
 
+//function to add a new datapacket node containing the new packet in the dataQueue structure at the node
 void add_datapacketnode(packet *p1) {
 	//printf("ADDING!!\n");
 	while(!lock1);
@@ -91,6 +93,7 @@ void add_datapacketnode(packet *p1) {
 	lock1 = 1;
 }
 
+//function to return the largest sequence number packet residing for a particular flow in the dataQueue
 int chk_seq(packet *p){
 	while(!lock1);
 	lock1 = 0;
@@ -108,6 +111,7 @@ int chk_seq(packet *p){
 	return high;
 }
 
+//function to delete datapacket node
 void deletenode(struct data_Queue *stop) {
 	while(!lock1);
 	lock1 = 0;
@@ -138,6 +142,7 @@ void deletenode(struct data_Queue *stop) {
 	lock1 = 1;
 }
 
+//function to get oldest packet in the dataQueue for a correspondng flow
 packet * getOldestPacket(char * srcip) {
 	while(!lock1);
 	lock1=0;
