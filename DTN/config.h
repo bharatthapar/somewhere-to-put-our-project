@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+//Structure to hold the configuration options
 typedef struct configOptions {
 	char IP[4];
 	char mask[4];
@@ -8,7 +9,6 @@ typedef struct configOptions {
 	int gatewayMode;
 	int packetLife;
 	int beaconInterval;
-	int maxDataSize;
 	int numberBroadcasts;
 	char * broadcastIP;
 } config;
@@ -18,6 +18,7 @@ typedef struct configOptions {
 #define GATEWAY_FORWARD 3
 #define GATEWAY_RECEIVE 4
 
+//Returns a config structure with the info from the given file
 config * getConfiguration(char * sFile);
 
 #endif

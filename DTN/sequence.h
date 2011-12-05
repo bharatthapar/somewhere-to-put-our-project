@@ -13,7 +13,7 @@
 #define NOT_OLD_PACKET 0
 #define OLD_PACKET 1
 
-
+//Structure to store sequence numbers in a linked list
 typedef struct seqHolder {
 	//Source and destination (based on data packet)
 	char source[4];
@@ -38,8 +38,7 @@ void addSequenceNumber(packet * p);
 //Returns KEEP_PACKET if you should keep, DELETE_PACKET if should delete
 int keepPacket(packet * ACK, packet * p);
 
+//Returns the latest known sequence number for the flow of the given packet
 sequence * getStoredSeqNumber(packet * p);
-
-
 
 #endif

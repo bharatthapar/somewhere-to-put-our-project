@@ -45,7 +45,6 @@ destSeq * newDestSeq(packet * p) {
 	memcpy(out->dest, p->dest, 4);
 	out->num = 0;
 	out->timeout = p->ttl + time(NULL);
-	//printf("Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -63,7 +62,7 @@ destSeq * getLocalSeqNumber(packet * p) {
 		time_t tm = time(NULL);
 		for(temp = localFirst; temp != NULL; temp = temp->next) {
 		
-			//Check for timeout here
+			//Check for timeout
 			if (tm > temp->timeout)
 				temp->num = 0;
 		
@@ -96,7 +95,6 @@ sequence * newSeqNumber(packet * p) {
 		out->seqNum = p->seq_num - 1; 	
 	}
 	out->timeout = time(NULL) + p->ttl;
-	//printf("(NSN) Seq will timeout at %d\n", out->timeout);
 	out->next = NULL;
 	return out;
 }
@@ -147,7 +145,6 @@ int checkACKQueue(packet * p) {
 	if (p->seq_num > s->seqNum) {
 		s->seqNum = p->seq_num;
 		s->timeout = p->ttl + time(NULL);
-		//printf("ACK time out at %d current time is %d\n", s->timeout, time(NULL));
 		return NOT_OLD_PACKET;
 	} else
 		return OLD_PACKET;
@@ -186,7 +183,6 @@ int keepPacket(packet * ACK, packet * p) {
 			return KEEP_PACKET;
 		} else {
 			if (p->seq_num <= ACK->seq_num) {
-				//printf("Deleting DATA packet with seq %d bacause of seq %d\n",p->seq_num,ACK->seq_num);
 				return DELETE_PACKET;
 			}
 			return KEEP_PACKET;
@@ -198,7 +194,6 @@ int keepPacket(packet * ACK, packet * p) {
 			return KEEP_PACKET;
 		} else {
 			if (p->seq_num < ACK->seq_num) {
-				//printf("Deleting ACK packet with seq %d bacause of seq %d\n",p->seq_num,ACK->seq_num);
 				return DELETE_PACKET;
 			}
 			return KEEP_PACKET;

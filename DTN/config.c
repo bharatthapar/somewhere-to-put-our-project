@@ -1,15 +1,22 @@
+/**
+ * Manages configuration options
+ */
+
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
+//Prints an error message and exits
 void error(char * msg) {
 	fprintf(stderr, "Error reading configuration file: %s\n", msg);
 	exit(-1);
 }
 
+//Returns a config structure with the info from the given file
 config * getConfiguration(char * sFile) {
+
+	//Variables to make sure each element is specified
 	int haveBundleAddress = 0;
 	int haveBundleMask = 0;
 	int havePort = 0;
@@ -17,20 +24,26 @@ config * getConfiguration(char * sFile) {
 	int haveGatewayMode = 0;
 	int havePacketLife = 0;
 	int haveBeaconInterval = 0;
-	int haveMaxDataSize = 0;
+
 	config * out = malloc(sizeof(config));
+	
+	//Open the file
 	FILE * file = fopen(sFile, "r");
 	if (file == NULL) {
 		fprintf(stderr, "Error opening file %s\n", sFile);
 		exit(-1);
 	}
+	
 	char line1[256];
 	char line2[256];
 	int a;
 	int b;
 	int c;
 	int d;
+	
+	//Read the parameters
 	while (fgets(line1, 256, file) != NULL) {
+		//Configuration options are preceeded with a "#"
 		if (line1[0] == '#') {
 			switch (line1[1]) {
 				case 'B' :
@@ -50,7 +63,7 @@ config * getConfiguration(char * sFile) {
 						out->mask[2] = c;
 						out->mask[3] = d;
 						haveBundleMask = 1;
-					} else if (memcmp("#Broadcast Addresses", line1, 20) == 0) {
+					} else if (memcmp("#Beacon Addresses", line1, 17) == 0) {
 						out->numberBroadcasts = 0;
 						int i = 0;
 						haveBroadcastAddress = 1;
@@ -63,7 +76,7 @@ config * getConfiguration(char * sFile) {
 							out->numberBroadcasts++;
 						}
 						if (i == 0)
-							error("Could not read broadcast addresses");
+							error("Could not read beacon addresses");
 						out->broadcastIP = malloc(i);
 						memcpy(out->broadcastIP, line2, i);
 					} else if (memcmp("#Beacon Interval", line1, 16) == 0) {
@@ -105,16 +118,11 @@ config * getConfiguration(char * sFile) {
 						havePort = 1;
 					}
 					break;	
-				case 'M':
-					if (memcmp("#Max Data Size", line1, 14) == 0) {
-						if (fscanf(file, "%d", &(out->maxDataSize)) < 1)
-							error("Could not read max data size");
-						haveMaxDataSize = 1;	
-					}
 			}
 		}
 	}
 	
+	//Make sure a value was read for all the required elements
 	if (haveBundleAddress == 0) {
 		error("Bundle address not specified");
 	}
@@ -125,7 +133,7 @@ config * getConfiguration(char * sFile) {
 		error("Port not specified");
 	}
 	if (haveBroadcastAddress == 0) {
-		error("Broadcast address(es) not specified");
+		error("Beacon address(es) not specified");
 	}
 	if (haveGatewayMode == 0) {
 		error("Gateway mode not specified");
@@ -136,9 +144,10 @@ config * getConfiguration(char * sFile) {
 	if (haveBeaconInterval == 0) {
 		error("Beacon interval not specified");
 	}
-	if (haveMaxDataSize == 0) {
-		error("Max data size not specified");
-	}
+	
+	//Close the file
 	fclose(file);
+	
+	//Return the loaded config structure
 	return out;
 }
