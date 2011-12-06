@@ -8,8 +8,8 @@
  */
 
 #include <stdio.h>
-#include "bundle.h"
-#include "packet.h"
+#include "../bundle.h"
+#include "../packet.h"
 
 #include <pthread.h>
 #include <string.h>
