@@ -1,5 +1,6 @@
 all: sequence.o DTN.o forwardQueue.o bundle.o deliveryQueue.o config.o
 	ar rcs DTN.a sequence.o DTN.o forwardQueue.o bundle.o deliveryQueue.o config.o
+	rm -rf sequence.o DTN.o forwardQueue.o bundle.o deliveryQueue.o config.o
 DTN.o: DTN.c packet.h forwardQueue.h sequence.h DTN.h bundle.h config.h forwardQueue.c sequence.c bundle.c config.c
 	gcc -c -lpthread -lrt -w DTN.c
 forwardQueue.o: forwardQueue.c forwardQueue.h packet.h DTN.h sequence.h DTN.c sequence.c
@@ -13,5 +14,4 @@ deliveryQueue.o: deliveryQueue.c deliveryQueue.h
 config.o: config.c config.h
 	gcc -c -w config.c
 clean:
-	rm -rf sequence.o DTN.o forwardQueue.o bundle.o deliveryQueue.o config.o
 	rm -rf DTN.a

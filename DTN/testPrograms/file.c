@@ -8,8 +8,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include"bundle.h"
-#include"dataQueue.h"
+#include"../bundle.h"
+
 
 void * readData() {
 	char SRCIP[4], buffer[1500];

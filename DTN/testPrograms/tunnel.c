@@ -12,10 +12,8 @@
 #include <linux/if_tun.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include "packet.h"
-#include "sequence.h"
-#include "DTN.h"
-#include "config.h"
+#include "../bundle.c"
+
 #define IP_PACKET_SIZE 1500
 
 #define IPV4 1
